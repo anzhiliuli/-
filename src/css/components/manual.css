@@ -1,0 +1,214 @@
+/* 使用手册样式 */
+.manual-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+/* 封面区域 */
+.manual-cover {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.manual-cover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.1), 0 10px 10px -5px rgba(59, 130, 246, 0.04);
+}
+
+/* 目录导航 */
+.manual-nav {
+    transition: all 0.3s ease;
+}
+
+.manual-nav:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.manual-nav-item {
+    transition: all 0.2s ease;
+}
+
+.manual-nav-item:hover {
+    transform: translateX(2px);
+}
+
+/* 内容区域 */
+.manual-content {
+    scroll-behavior: smooth;
+}
+
+/* 章节标题 */
+.section-header {
+    margin-bottom: 1.5rem;
+}
+
+.section-header h2 {
+    font-weight: 800;
+    letter-spacing: -0.025em;
+}
+
+/* 功能卡片 */
+.feature-card {
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.feature-card:hover {
+    border-color: var(--primary-color);
+    transform: translateY(-2px);
+}
+
+.feature-icon {
+    transition: all 0.3s ease;
+}
+
+.feature-card:hover .feature-icon {
+    transform: scale(1.05);
+}
+
+/* 示例盒子 */
+.example-box {
+    transition: all 0.3s ease;
+}
+
+.example-box:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* 公式项 */
+.formula-item {
+    transition: all 0.2s ease;
+}
+
+.formula-item:hover {
+    transform: translateX(4px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* 时间格式项 */
+.time-format-item {
+    transition: all 0.2s ease;
+}
+
+.time-format-item:hover {
+    background-color: var(--primary-light);
+    border-color: var(--primary-color);
+}
+
+/* 注意事项项 */
+.note-item {
+    transition: all 0.2s ease;
+}
+
+.note-item:hover {
+    transform: translateX(4px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* 时间格式显示 */
+.time-format-display {
+    transition: all 0.3s ease;
+}
+
+.time-format-display:hover {
+    transform: scale(1.02);
+    box-shadow: 0 20px 25px -5px rgba(59, 130, 246, 0.2), 0 10px 10px -5px rgba(59, 130, 246, 0.1);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .manual-cover {
+        text-align: center;
+    }
+    
+    .manual-cover .flex {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .section-header h2 {
+        font-size: 1.75rem;
+    }
+    
+    .feature-card {
+        padding: 1rem;
+    }
+    
+    .time-format-display {
+        padding: 1.5rem;
+    }
+    
+    .time-format-display .text-4xl {
+        font-size: 2.5rem;
+    }
+}
+
+@media (max-width: 640px) {
+    .manual-container {
+        padding: 0 0.5rem;
+    }
+    
+    .manual-cover {
+        padding: 1.5rem;
+    }
+    
+    .manual-cover h1 {
+        font-size: 2rem;
+    }
+    
+    .section-header h2 {
+        font-size: 1.5rem;
+    }
+    
+    .feature-icon {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .feature-icon i {
+        font-size: 1.5rem;
+    }
+}
+
+/* 滚动条样式 */
+.manual-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.manual-container::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+    border-radius: 4px;
+}
+
+.manual-container::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 4px;
+}
+
+.manual-container::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-hover);
+}
+
+/* 打印样式 */
+@media print {
+    .manual-container {
+        max-width: 100%;
+    }
+    
+    .manual-cover {
+        box-shadow: none;
+        border: 1px solid var(--border-color);
+    }
+    
+    .manual-nav {
+        display: none;
+    }
+    
+    .feature-card,
+    .note-item,
+    .time-format-item {
+        break-inside: avoid;
+        box-shadow: none;
+        border: 1px solid var(--border-color);
+    }
+}

@@ -1,0 +1,135 @@
+/* 排版工具类 */
+.text-left { text-align: left; }
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+
+.text-sm { font-size: var(--text-sm); }
+.text-base { font-size: var(--text-base); }
+.text-lg { font-size: var(--text-lg); }
+.text-xl { font-size: var(--text-xl); }
+
+.font-normal { font-weight: var(--font-normal); }
+.font-medium { font-weight: var(--font-medium); }
+.font-semibold { font-weight: var(--font-semibold); }
+
+/* 颜色工具类 */
+.text-primary { color: var(--primary-color); }
+.text-danger { color: var(--danger-color); }
+.text-gray-500 { color: var(--gray-500); }
+.text-gray-800 { color: var(--gray-800); }
+
+.bg-primary { background-color: var(--primary-color); }
+.bg-gray-50 { background-color: var(--gray-50); }
+.bg-white { background-color: var(--bg-primary); }
+.bg-gray-700 { background-color: var(--gray-700); }
+.bg-gray-800 { background-color: var(--gray-800); }
+
+/* 间距工具类 */
+.m-0 { margin: 0; }
+.mt-0 { margin-top: 0; }
+.mt-1 { margin-top: var(--spacing-1); }
+.mt-2 { margin-top: var(--spacing-2); }
+.mt-3 { margin-top: var(--spacing-3); }
+.mb-0 { margin-bottom: 0; }
+.mb-1 { margin-bottom: var(--spacing-1); }
+.mb-3 { margin-bottom: var(--spacing-3); }
+.mb-4 { margin-bottom: var(--spacing-4); }
+.ml-2 { margin-left: var(--spacing-2); }
+.mr-2 { margin-right: var(--spacing-2); }
+.mx-auto { margin-left: auto; margin-right: auto; }
+
+.p-0 { padding: 0; }
+.p-2 { padding: var(--spacing-2); }
+.p-4 { padding: var(--spacing-4); }
+.p-6 { padding: var(--spacing-6); }
+.py-2 { padding-top: var(--spacing-2); padding-bottom: var(--spacing-2); }
+.px-4 { padding-left: var(--spacing-4); padding-right: var(--spacing-4); }
+.py-3 { padding-top: var(--spacing-3); padding-bottom: var(--spacing-3); }
+.px-6 { padding-left: var(--spacing-6); padding-right: var(--spacing-6); }
+
+
+
+/* 布局工具类 */
+.flex { display: flex; }
+.block { display: block; }
+.hidden { display: none; }
+.inline { display: inline; }
+
+.flex-wrap { flex-wrap: wrap; }
+.flex-col { flex-direction: column; }
+.flex-row { flex-direction: row; }
+
+.items-center { align-items: center; }
+
+.justify-end { justify-content: flex-end; }
+.justify-between { justify-content: space-between; }
+
+.gap-2 { gap: var(--spacing-2); }
+.gap-3 { gap: var(--spacing-3); }
+.gap-4 { gap: var(--spacing-4); }
+.gap-6 { gap: var(--spacing-6); }
+
+.flex-grow { flex-grow: 1; }
+.overflow-auto { overflow: auto; }
+.max-h-60 { max-height: 15rem; }
+
+/* 容器类 */
+.container { width: 100%; margin-left: auto; margin-right: auto; padding-left: var(--spacing-4); padding-right: var(--spacing-4); }
+
+/* 宽度工具类 */
+.w-48 { width: 12rem; }
+.w-full { width: 100%; }
+.w-auto { width: auto; }
+
+/* 高度工具类 */
+.h-full { height: 100%; }
+.h-auto { height: auto; }
+
+/* 边框工具类 */
+.border { border: 1px solid var(--border-color); }
+.border-gray-100 { border-color: var(--gray-100); }
+.border-gray-700 { border-color: var(--gray-700); }
+
+.rounded-lg { border-radius: var(--radius-lg); }
+.rounded-xl { border-radius: var(--radius-xl); }
+
+
+/* 阴影工具类 */
+.shadow-md { box-shadow: var(--shadow-md); }
+.shadow-lg { box-shadow: var(--shadow-lg); }
+
+/* 过渡工具类 */
+.transition-all { transition: all var(--transition-base); }
+.transition-colors { transition: color var(--transition-base), background-color var(--transition-base), border-color var(--transition-base); }
+
+
+/* 显示工具类 */
+.overflow-hidden { overflow: hidden; }
+
+
+/* 位置工具类 */
+.relative { position: relative; }
+.absolute { position: absolute; }
+
+.right-0 { right: 0; }
+.z-50 { z-index: 50; }
+
+/* 响应式工具类 */
+@media (min-width: var(--breakpoint-sm)) {
+  .sm-hidden { display: none; }
+  .sm-inline { display: inline; }
+  .sm-px-6 { padding-left: var(--spacing-6); padding-right: var(--spacing-6); }
+  .sm-gap-6 { gap: var(--spacing-6); }
+}
+
+@media (min-width: var(--breakpoint-md)) {
+  .md-grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (min-width: var(--breakpoint-lg)) {
+  .lg-w-22p { width: 22%; }
+  .lg-w-28p { width: 28%; }
+  .lg-w-50p { width: 50%; }
+  .lg-flex-row { flex-direction: row; }
+  .lg-flex-col { flex-direction: column; }
+}

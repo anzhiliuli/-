@@ -1,0 +1,34 @@
+{
+  "name": "blue-archive-calculator",
+  "version": "1.0.0",
+  "description": "碧蓝档案轴计算器 - 用于规划和计算角色技能释放的时间轴",
+  "main": "src/js/index.js",
+  "type": "module",
+  "scripts": {
+    "serve": "npx http-server -p 8000 -o",
+    "dev": "npx http-server -p 8000 -o -c-1",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "blue-archive",
+    "calculator",
+    "game",
+    "javascript",
+    "web"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "bootstrap": "^5.3.3",
+    "chart.js": "^4.4.8",
+    "font-awesome": "^6.5.1"
+  },
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead"
+  ]
+}
