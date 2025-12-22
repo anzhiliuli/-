@@ -54,9 +54,9 @@ class Calculator {
         
         // 先应用所有减费规则
         reductionRules.forEach(rule => {
-            // 检查当前角色是否是减费规则的目标角色
-            const isTargetCharacter = Array.isArray(rule.targetCharacterIds) && rule.targetCharacterIds.includes(characterId);
-            if (isTargetCharacter) {
+            // 减费效果：统一检查规则是否作用于当前角色
+            const isRuleApplied = Array.isArray(rule.targetCharacterIds) && rule.targetCharacterIds.includes(characterId);
+            if (isRuleApplied) {
                 // 检查规则计数器，确保生效次数未用完
                 const ruleKey = `costReduction_${rule.id}`;
                 // 初始化计数器（如果不存在）
@@ -64,8 +64,12 @@ class Calculator {
                     this.ruleCounters[ruleKey] = 0;
                 }
                 
-                // 只有当生效次数未用完时，才应用减费效果
-                if (this.ruleCounters[ruleKey] < rule.effectCount) {
+                // 检查当前数据项是否在目标行之后（不包括当前目标行）
+                // 只有当当前itemId大于规则的characterId（目标行ID）时，才应用减费效果
+                const isAfterTargetRow = !itemId || rule.characterId !== itemId;
+                
+                // 如果生效次数未用完且在目标行之后，应用减费
+                if (this.ruleCounters[ruleKey] < rule.effectCount && isAfterTargetRow) {
                     finalCost -= rule.reductionValue;
                     // 增加计数器
                     this.ruleCounters[ruleKey]++;
@@ -179,48 +183,7 @@ class Calculator {
         // 对于没有costChange规则的数据项，使用角色的技能费用作为基础费用
         // 对于有costChange规则的数据项，会在applyRuleCostChanges中被覆盖
         const baseCost = character.skillCost;
-        
-        // 为单个数据项计算创建临时计数器，不影响全局计数器
-        const tempCounters = {};
-        
-        // 获取规则
-        const rules = this.dataManager.getRules();
-        const reductionRules = rules.filter(rule => rule.type === 'costReduction');
-        const changeRules = rules.filter(rule => rule.type === 'costChange');
-        
-        let finalCost = baseCost;
-        
-        // 先应用所有减费规则
-        reductionRules.forEach(rule => {
-            // 检查当前角色是否是减费规则的目标角色
-            const isTargetCharacter = Array.isArray(rule.targetCharacterIds) && rule.targetCharacterIds.includes(character.id);
-            if (isTargetCharacter) {
-                // 检查规则计数器，确保生效次数未用完
-                const ruleKey = `costReduction_${rule.id}`;
-                // 初始化临时计数器（如果不存在）
-                if (!tempCounters[ruleKey]) {
-                    tempCounters[ruleKey] = 0;
-                }
-                
-                // 只有当生效次数未用完时，才应用减费效果
-                if (tempCounters[ruleKey] < rule.effectCount) {
-                    finalCost -= rule.reductionValue;
-                    // 增加临时计数器
-                    tempCounters[ruleKey]++;
-                }
-            }
-        });
-        
-        // 然后应用费用更改规则（如果有）
-        changeRules.forEach(rule => {
-            // 更改扣除：如果规则的目标行是当前数据项，直接使用规则的changeValue作为最终费用
-            if (item.id && rule.characterId === item.id) {
-                finalCost = rule.changeValue;
-            }
-        });
-        
-        // 确保费用不小于0
-        finalCost = Math.max(0, finalCost);
+        const finalCost = this.applyRuleCostChanges(item.characterId, baseCost, item.id);
         
         // 确保费用足够
         costDeduction = Math.min(newCost, finalCost);
@@ -350,40 +313,8 @@ class Calculator {
                 // 对于没有costChange规则的数据项，使用角色的技能费用作为基础费用
                 // 对于有costChange规则的数据项，会在applyRuleCostChanges中被覆盖
                 const baseCost = character.skillCost;
-                
-                let finalCost = baseCost;
-                
-                // 先应用所有减费规则
-                costReductionRules.forEach(rule => {
-                    // 检查当前角色是否是减费规则的目标角色
-                    const isTargetCharacter = Array.isArray(rule.targetCharacterIds) && rule.targetCharacterIds.includes(character.id);
-                    if (isTargetCharacter) {
-                        // 检查规则计数器，确保生效次数未用完
-                        const ruleKey = `costReduction_${rule.id}`;
-                        // 初始化计数器（如果不存在）
-                        if (!this.ruleCounters[ruleKey]) {
-                            this.ruleCounters[ruleKey] = 0;
-                        }
-                        
-                        // 只有当生效次数未用完时，才应用减费效果
-                        if (this.ruleCounters[ruleKey] < rule.effectCount) {
-                            finalCost -= rule.reductionValue;
-                            // 增加计数器
-                            this.ruleCounters[ruleKey]++;
-                        }
-                    }
-                });
-                
-                // 然后应用费用更改规则（如果有）
-                costChangeRules.forEach(rule => {
-                    // 更改扣除：如果规则的目标行是当前数据项，直接使用规则的changeValue作为最终费用
-                    if (item.id && rule.characterId === item.id) {
-                        finalCost = rule.changeValue;
-                    }
-                });
-                
-                // 确保费用不小于0
-                finalCost = Math.max(0, finalCost);
+                // 传入预筛选的规则，避免在方法内部重复筛选
+                const finalCost = this.applyRuleCostChanges(item.characterId, baseCost, item.id, costReductionRules, costChangeRules);
                 
                 // 确保费用足够
                 costDeduction = Math.min(newCost, finalCost);
