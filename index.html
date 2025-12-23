@@ -1111,140 +1111,125 @@
     </style>
 
 
-    <!-- 使用手册弹窗 -->
+    <!-- 使用手册弹窗 - 横版布局 -->
     <div id="manualModal" class="fixed inset-0 z-50 flex items-center justify-center hidden modal-backdrop">
-        <div class="modal-content large">
+        <div class="modal-content manual-modal横版">
             <div class="modal-header">
-                <h3 class="text-lg font-semibold">使用手册</h3>
+                <h3 class="text-xl font-semibold flex items-center">
+                    <i class="fas fa-book mr-2"></i>使用手册
+                </h3>
                 <button class="closeModal text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300">
-                    <i class="fas fa-times"></i>
+                    <i class="fas fa-times text-lg"></i>
                 </button>
             </div>
-            <div class="modal-body">
-                <div class="manual-container">
-                    <!-- 封面区域 -->
-                    <div class="manual-cover mb-8 p-6 bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl border border-blue-100 shadow-sm">
-                        <div class="flex flex-col md:flex-row items-center justify-between gap-6">
-                            <div class="flex-1">
-                                <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-3">
-                                    碧蓝档案轴计算器
-                                </h1>
-                                <p class="text-lg text-gray-600 mb-4">
-                                    精准计算技能费用与回费时间，优化角色技能释放节奏
-                                </p>
-                                <div class="flex flex-wrap gap-2">
-                                    <span class="px-3 py-1 bg-blue-100 text-blue-800 text-sm font-medium rounded-full">
-                                        <i class="fas fa-calculator mr-1"></i>专业计算
-                                    </span>
-                                    <span class="px-3 py-1 bg-purple-100 text-purple-800 text-sm font-medium rounded-full">
-                                        <i class="fas fa-clock mr-1"></i>时间管理
-                                    </span>
-                                    <span class="px-3 py-1 bg-green-100 text-green-800 text-sm font-medium rounded-full">
-                                        <i class="fas fa-link mr-1"></i>关联规则
-                                    </span>
-                                </div>
-                            </div>
-                            <div class="w-24 h-24 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center shadow-lg">
-                                <i class="fas fa-calculator text-white text-4xl"></i>
-                            </div>
+            <div class="modal-body manual-layout横版">
+                <!-- 左侧导航区域 -->
+                <aside class="manual-nav-sidebar">
+                    <!-- 封面信息 -->
+                    <div class="manual-nav-header p-5 bg-gradient-to-b from-blue-50 to-purple-50 border-b border-blue-100 flex items-center justify-center">
+                        <div class="text-center">
+                            <h4 class="font-bold text-gray-900 text-lg">碧蓝档案轴计算器</h4>
+                            <p class="text-xs text-gray-600">专业的技能释放规划工具</p>
                         </div>
                     </div>
                     
                     <!-- 目录导航 -->
-                    <div class="manual-nav mb-8 bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
-                        <h2 class="text-lg font-semibold text-gray-900 mb-3 flex items-center">
-                            <i class="fas fa-list mr-2 text-blue-500"></i>目录
-                        </h2>
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-                            <a href="#manual-intro" class="manual-nav-item px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 rounded-lg transition-colors flex items-center">
-                                <i class="fas fa-info-circle mr-2 text-xs"></i>基本介绍
-                            </a>
-                            <a href="#manual-quickstart" class="manual-nav-item px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 rounded-lg transition-colors flex items-center">
-                                <i class="fas fa-rocket mr-2 text-xs"></i>快速开始
-                            </a>
-                            <a href="#manual-features" class="manual-nav-item px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 rounded-lg transition-colors flex items-center">
-                                <i class="fas fa-star mr-2 text-xs"></i>核心功能
-                            </a>
-                            <a href="#manual-editing" class="manual-nav-item px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 rounded-lg transition-colors flex items-center">
-                                <i class="fas fa-pencil mr-2 text-xs"></i>编辑技巧
-                            </a>
-                            <a href="#manual-calculation" class="manual-nav-item px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 rounded-lg transition-colors flex items-center">
-                                <i class="fas fa-calculator mr-2 text-xs"></i>计算规则
-                            </a>
-                            <a href="#manual-time" class="manual-nav-item px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 rounded-lg transition-colors flex items-center">
-                                <i class="fas fa-clock mr-2 text-xs"></i>时间格式
-                            </a>
-                            <a href="#manual-notes" class="manual-nav-item px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 rounded-lg transition-colors flex items-center">
-                                <i class="fas fa-exclamation-circle mr-2 text-xs"></i>注意事项
-                            </a>
-                        </div>
-                    </div>
-                    
-                    <!-- 内容区域 -->
-                    <div class="manual-content space-y-10">
-                        <!-- 基本介绍 -->
-                        <section id="manual-intro" class="manual-section">
-                            <div class="section-header mb-4">
-                                <h2 class="text-2xl font-bold text-gray-900 flex items-center">
-                                    <span class="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center mr-3 text-sm">1</span>
-                                    基本介绍
-                                </h2>
-                                <div class="h-1 w-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full mt-2"></div>
-                            </div>
-                            <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-                                <p class="text-gray-700 leading-relaxed">
-                                    碧蓝档案轴计算器是一款专为《碧蓝档案》玩家设计的专业工具，用于精准计算角色技能费用与回费时间，设置角色间关联规则，帮助玩家高效规划游戏内角色技能释放节奏，确保技能衔接精准，优化游戏体验。
-                                </p>
-                                <div class="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-100">
-                                    <p class="text-sm text-blue-800 flex items-start">
-                                        <i class="fas fa-lightbulb-o mt-1 mr-2 text-blue-600"></i>
-                                        本工具采用现代化设计，提供直观的操作界面和强大的计算功能，适合不同水平的玩家使用。
-                                    </p>
-                                </div>
-                            </div>
-                        </section>
-                        
+                    <nav class="manual-nav-content p-4 overflow-y-auto">
+                        <h5 class="text-sm font-semibold text-gray-500 uppercase mb-3 flex items-center">
+                            <i class="fas fa-list mr-2 text-gray-400"></i>目录
+                        </h5>
+                        <ul class="space-y-1">
+                            <li>
+                                <a href="#manual-quickstart" class="manual-nav-item flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 rounded-lg transition-colors">
+                                    <i class="fas fa-rocket mr-2 text-xs text-blue-500"></i>
+                                    <span>快速开始</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#manual-features" class="manual-nav-item flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 rounded-lg transition-colors">
+                                    <i class="fas fa-star mr-2 text-xs text-yellow-500"></i>
+                                    <span>核心功能</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#manual-editing" class="manual-nav-item flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 rounded-lg transition-colors">
+                                    <i class="fas fa-pencil mr-2 text-xs text-green-500"></i>
+                                    <span>编辑技巧</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#manual-calculation" class="manual-nav-item flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 rounded-lg transition-colors">
+                                    <i class="fas fa-calculator mr-2 text-xs text-purple-500"></i>
+                                    <span>计算规则</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#manual-time" class="manual-nav-item flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 rounded-lg transition-colors">
+                                    <i class="fas fa-clock mr-2 text-xs text-orange-500"></i>
+                                    <span>时间格式</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#manual-intro" class="manual-nav-item flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 rounded-lg transition-colors">
+                                    <i class="fas fa-info-circle mr-2 text-xs text-gray-400"></i>
+                                    <span>基本介绍</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#manual-notes" class="manual-nav-item flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 rounded-lg transition-colors">
+                                    <i class="fas fa-exclamation-circle mr-2 text-xs text-red-500"></i>
+                                    <span>注意事项</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </aside>
+                
+                <!-- 右侧内容区域 -->
+                <main class="manual-content-area overflow-y-auto">
+                    <!-- 内容容器 -->
+                    <div class="manual-content-container p-6">
                         <!-- 快速开始指南 -->
-                        <section id="manual-quickstart" class="manual-section">
-                            <div class="section-header mb-4">
+                        <section id="manual-quickstart" class="manual-section mb-12">
+                            <div class="section-header mb-6">
                                 <h2 class="text-2xl font-bold text-gray-900 flex items-center">
-                                    <span class="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center mr-3 text-sm">2</span>
+                                    <i class="fas fa-rocket mr-3 text-yellow-500"></i>
                                     快速开始指南
                                 </h2>
-                                <div class="h-1 w-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full mt-2"></div>
+                                <div class="h-1 w-20 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full mt-2"></div>
                             </div>
                             <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-                                <ol class="space-y-4">
+                                <ol class="space-y-5">
                                     <li class="flex gap-4">
-                                        <div class="flex-shrink-0 w-6 h-6 bg-blue-100 text-blue-800 rounded-full flex items-center justify-center font-medium text-sm">1</div>
+                                        <div class="flex-shrink-0 w-8 h-8 bg-blue-100 text-blue-800 rounded-full flex items-center justify-center font-medium text-sm shadow-sm">1</div>
                                         <div class="flex-1">
                                             <h3 class="font-semibold text-gray-900 mb-1">添加角色</h3>
                                             <p class="text-gray-600">点击"添加角色"按钮，设置角色名、回费速度、技能费用等属性</p>
                                         </div>
                                     </li>
                                     <li class="flex gap-4">
-                                            <div class="flex-shrink-0 w-6 h-6 bg-blue-100 text-blue-800 rounded-full flex items-center justify-center font-medium text-sm">2</div>
-                                            <div class="flex-1">
-                                                <h3 class="font-semibold text-gray-900 mb-1">初始化数据表</h3>
-                                                <p class="text-gray-600">点击"初始化"按钮，设置初始时间（如2:59.000）。<strong>初始时间代表开始回费的时间，而不是场景最开始的时间</strong></p>
-                                            </div>
-                                        </li>
+                                        <div class="flex-shrink-0 w-8 h-8 bg-blue-100 text-blue-800 rounded-full flex items-center justify-center font-medium text-sm shadow-sm">2</div>
+                                        <div class="flex-1">
+                                            <h3 class="font-semibold text-gray-900 mb-1">初始化数据表</h3>
+                                            <p class="text-gray-600">点击"初始化"按钮，设置初始时间（如2:59.000）。<strong>初始时间代表开始回费的时间，而不是场景最开始的时间</strong></p>
+                                        </div>
+                                    </li>
                                     <li class="flex gap-4">
-                                        <div class="flex-shrink-0 w-6 h-6 bg-blue-100 text-blue-800 rounded-full flex items-center justify-center font-medium text-sm">3</div>
+                                        <div class="flex-shrink-0 w-8 h-8 bg-blue-100 text-blue-800 rounded-full flex items-center justify-center font-medium text-sm shadow-sm">3</div>
                                         <div class="flex-1">
                                             <h3 class="font-semibold text-gray-900 mb-1">添加数据项</h3>
                                             <p class="text-gray-600">在中间表单选择触发角色、输入触发费用、动作，点击"添加数据项"</p>
                                         </div>
                                     </li>
                                     <li class="flex gap-4">
-                                        <div class="flex-shrink-0 w-6 h-6 bg-blue-100 text-blue-800 rounded-full flex items-center justify-center font-medium text-sm">4</div>
+                                        <div class="flex-shrink-0 w-8 h-8 bg-blue-100 text-blue-800 rounded-full flex items-center justify-center font-medium text-sm shadow-sm">4</div>
                                         <div class="flex-1">
                                             <h3 class="font-semibold text-gray-900 mb-1">编辑数据项</h3>
                                             <p class="text-gray-600">点击数据项后的编辑按钮，可调整时间或费用，系统会自动计算关联数据</p>
                                         </div>
                                     </li>
                                     <li class="flex gap-4">
-                                        <div class="flex-shrink-0 w-6 h-6 bg-blue-100 text-blue-800 rounded-full flex items-center justify-center font-medium text-sm">5</div>
+                                        <div class="flex-shrink-0 w-8 h-8 bg-blue-100 text-blue-800 rounded-full flex items-center justify-center font-medium text-sm shadow-sm">5</div>
                                         <div class="flex-1">
                                             <h3 class="font-semibold text-gray-900 mb-1">设置关联规则</h3>
                                             <p class="text-gray-600">选择目标行后，点击"添加关联规则"，设置角色间的相互影响</p>
@@ -1255,18 +1240,18 @@
                         </section>
                         
                         <!-- 核心功能说明 -->
-                        <section id="manual-features" class="manual-section">
-                            <div class="section-header mb-4">
+                        <section id="manual-features" class="manual-section mb-12">
+                            <div class="section-header mb-6">
                                 <h2 class="text-2xl font-bold text-gray-900 flex items-center">
-                                    <span class="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center mr-3 text-sm">3</span>
+                                    <i class="fas fa-star mr-3 text-yellow-500"></i>
                                     核心功能说明
                                 </h2>
-                                <div class="h-1 w-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full mt-2"></div>
+                                <div class="h-1 w-20 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full mt-2"></div>
                             </div>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <!-- 角色管理 -->
-                                <div class="feature-card bg-white p-5 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
-                                    <div class="feature-icon w-12 h-12 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center mb-4">
+                                <div class="feature-card bg-white p-5 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all">
+                                    <div class="feature-icon w-12 h-12 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center mb-4 shadow-sm">
                                         <i class="fas fa-users text-2xl"></i>
                                     </div>
                                     <h3 class="text-xl font-semibold text-gray-900 mb-3">角色管理</h3>
@@ -1285,14 +1270,14 @@
                                         </li>
                                         <li class="flex items-start gap-2 text-gray-700">
                                             <i class="fas fa-check text-green-500 mt-1"></i>
-                                            <span>支持快速添加角色预设</span>
+                                            <span>角色预设：预设角色功能开发中，后续版本更新</span>
                                         </li>
                                     </ul>
                                 </div>
                                 
                                 <!-- 数据管理 -->
-                                <div class="feature-card bg-white p-5 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
-                                    <div class="feature-icon w-12 h-12 bg-purple-100 text-purple-600 rounded-xl flex items-center justify-center mb-4">
+                                <div class="feature-card bg-white p-5 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all">
+                                    <div class="feature-icon w-12 h-12 bg-purple-100 text-purple-600 rounded-xl flex items-center justify-center mb-4 shadow-sm">
                                         <i class="fas fa-table text-2xl"></i>
                                     </div>
                                     <h3 class="text-xl font-semibold text-gray-900 mb-3">数据管理</h3>
@@ -1322,26 +1307,105 @@
                                         <i class="fas fa-link text-2xl"></i>
                                     </div>
                                     <h3 class="text-xl font-semibold text-gray-900 mb-3">关联规则</h3>
+                                    <div class="mb-3 text-sm text-gray-600">
+                                        <strong>使用步骤</strong>：选择目标行 → 点击"添加规则" → 设置参数 → 保存
+                                    </div>
+                                    <ul class="space-y-3">
+                                        <li class="p-3 bg-green-50 rounded-lg border border-green-100">
+                                            <h4 class="font-medium text-green-800 mb-1">减费效果</h4>
+                                            <p class="text-sm text-gray-700">降低目标角色的技能费用</p>
+                                            <div class="mt-2 space-y-1 text-xs text-gray-600">
+                                                <div><strong>设置项</strong>：触发角色、目标角色、生效次数、减费数值</div>
+                                                <div><strong>注意</strong>：后添加的减费规则优先级更高，会覆盖之前的减费效果</div>
+                                            </div>
+                                        </li>
+                                        <li class="p-3 bg-green-50 rounded-lg border border-green-100">
+                                            <h4 class="font-medium text-green-800 mb-1">更改扣除</h4>
+                                            <p class="text-sm text-gray-700">直接修改目标行的费用扣除值</p>
+                                            <div class="mt-2 space-y-1 text-xs text-gray-600">
+                                                <div><strong>设置项</strong>：触发角色、更改数值</div>
+                                                <div><strong>注意</strong>：该规则仅对目标行生效，会覆盖所有其他费用计算</div>
+                                            </div>
+                                        </li>
+                                        <li class="p-3 bg-green-50 rounded-lg border border-green-100">
+                                            <h4 class="font-medium text-green-800 mb-1">费用效果</h4>
+                                            <p class="text-sm text-gray-700">增加或减少回费速度</p>
+                                            <div class="mt-2 space-y-1 text-xs text-gray-600">
+                                                <div><strong>设置项</strong>：触发角色、目标角色、生效时间、持续时间、费用类型、数值</div>
+                                                <div><strong>注意</strong>：费用效果在指定时间范围内生效，会影响所有符合条件的角色</div>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                                
+                                <!-- 持续回费功能 -->
+                                <div class="feature-card bg-white p-5 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+                                    <div class="feature-icon w-12 h-12 bg-yellow-100 text-yellow-600 rounded-xl flex items-center justify-center mb-4">
+                                        <i class="fas fa-bolt text-2xl"></i>
+                                    </div>
+                                    <h3 class="text-xl font-semibold text-gray-900 mb-3">持续回费功能</h3>
+                                    <div class="mb-3 text-sm text-gray-600">
+                                        <strong>使用步骤</strong>：选择目标行 → 点击"持续回费功能" → 设置参数 → 保存
+                                    </div>
+                                    <div class="space-y-3">
+                                        <div class="p-3 bg-yellow-50 rounded-lg border border-yellow-100">
+                                            <h4 class="font-medium text-yellow-800 mb-2">参数说明</h4>
+                                            <div class="space-y-2 text-sm text-gray-700">
+                                                <div class="flex items-start gap-2">
+                                                    <i class="fas fa-clock text-yellow-600 mt-1"></i>
+                                                    <span><strong>延迟时间</strong>：从目标行到回费效果开始的时间间隔（秒）</span>
+                                                </div>
+                                                <div class="flex items-start gap-2">
+                                                    <i class="fas fa-hourglass-half text-yellow-600 mt-1"></i>
+                                                    <span><strong>持续时长</strong>：回费效果持续的时间（秒）</span>
+                                                </div>
+                                                <div class="flex items-start gap-2">
+                                                    <i class="fas fa-arrow-up text-yellow-600 mt-1"></i>
+                                                    <span><strong>回费速度增加</strong>：回费速度的增加量（c/s）</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="p-3 bg-blue-50 rounded-lg border border-blue-100">
+                                            <h4 class="font-medium text-blue-800 mb-2">效果说明</h4>
+                                            <ul class="space-y-1 text-sm text-gray-700">
+                                                <li class="flex items-start gap-2">
+                                                    <i class="fas fa-check text-blue-600 mt-1"></i>
+                                                    <span>在目标行的时间点 - 延迟时间 开始生效</span>
+                                                </li>
+                                                <li class="flex items-start gap-2">
+                                                    <i class="fas fa-check text-blue-600 mt-1"></i>
+                                                    <span>持续 持续时长 秒后结束</span>
+                                                </li>
+                                                <li class="flex items-start gap-2">
+                                                    <i class="fas fa-check text-blue-600 mt-1"></i>
+                                                    <span>期间所有角色的总回费速度增加 指定数值</span>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- 角色特殊技能 -->
+                                <div class="feature-card bg-white p-5 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+                                    <div class="feature-icon w-12 h-12 bg-pink-100 text-pink-600 rounded-xl flex items-center justify-center mb-4">
+                                        <i class="fas fa-star text-2xl"></i>
+                                    </div>
+                                    <h3 class="text-xl font-semibold text-gray-900 mb-3">角色特殊技能</h3>
+                                    <div class="mb-3 text-sm text-gray-600">
+                                        <strong>使用步骤</strong>：点击"角色特殊技能" → 设置技能 → 保存
+                                    </div>
                                     <ul class="space-y-2">
                                         <li class="flex items-start gap-2 text-gray-700">
                                             <i class="fas fa-check text-green-500 mt-1"></i>
-                                            <span>减费效果：降低目标角色技能费用，可设置生效次数</span>
+                                            <span>设置和计算角色的特殊技能费用</span>
                                         </li>
                                         <li class="flex items-start gap-2 text-gray-700">
                                             <i class="fas fa-check text-green-500 mt-1"></i>
-                                            <span>瞬间回费：立即恢复指定费用到费用池</span>
+                                            <span>特殊技能的费用会自动应用到相关数据项中</span>
                                         </li>
                                         <li class="flex items-start gap-2 text-gray-700">
                                             <i class="fas fa-check text-green-500 mt-1"></i>
-                                            <span>持续回费：提高回费速度，影响基础回费计算</span>
-                                        </li>
-                                        <li class="flex items-start gap-2 text-gray-700">
-                                            <i class="fas fa-check text-green-500 mt-1"></i>
-                                            <span>更改扣除：直接覆盖目标行的费用扣除数值</span>
-                                        </li>
-                                        <li class="flex items-start gap-2 text-gray-700">
-                                            <i class="fas fa-check text-green-500 mt-1"></i>
-                                            <span>费用效果：调整回费效果，可设置时间范围和作用对象</span>
+                                            <span>支持不同角色的特殊技能费用计算</span>
                                         </li>
                                     </ul>
                                 </div>
@@ -1377,8 +1441,7 @@
                         <!-- 编辑数据项技巧 -->
                         <section id="manual-editing" class="manual-section">
                             <div class="section-header mb-4">
-                                <h2 class="text-2xl font-bold text-gray-900 flex items-center">
-                                    <span class="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center mr-3 text-sm">4</span>
+                                <h2 class="text-2xl font-bold text-gray-900">
                                     编辑数据项技巧
                                 </h2>
                                 <div class="h-1 w-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full mt-2"></div>
@@ -1386,6 +1449,9 @@
                             <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
                                 <div class="mb-6">
                                     <h3 class="text-xl font-semibold text-gray-900 mb-4">实时计算功能</h3>
+                                    <p class="text-gray-700 mb-4">
+                                        编辑数据项时，系统会根据时间或费用的变化自动计算关联的费用或时间，确保计算结果的准确性和一致性。
+                                    </p>
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                                         <div class="p-4 bg-green-50 rounded-lg border border-green-100">
                                             <h4 class="font-medium text-green-800 mb-2 flex items-center">
@@ -1396,6 +1462,9 @@
                                                 <strong class="text-green-900">时间增加 → 费用减少</strong><br>
                                                 <strong class="text-green-900">时间减少 → 费用增加</strong>
                                             </p>
+                                            <div class="mt-3 text-xs text-gray-600">
+                                                <div><strong>计算逻辑</strong>：考虑上一个数据项的剩余费用，基于当前时间和上一个时间的时间间隔，使用细粒度时间步长（0.001秒）模拟费用恢复</div>
+                                            </div>
                                         </div>
                                         <div class="p-4 bg-blue-50 rounded-lg border border-blue-100">
                                             <h4 class="font-medium text-blue-800 mb-2 flex items-center">
@@ -1406,7 +1475,20 @@
                                                 <strong class="text-blue-900">费用增加 → 时间减少</strong><br>
                                                 <strong class="text-blue-900">费用减少 → 时间增加</strong>
                                             </p>
+                                            <div class="mt-3 text-xs text-gray-600">
+                                                <div><strong>计算逻辑</strong>：基于目标费用和上一个数据项的剩余费用差值，计算需要的时间，使用细粒度时间步长（0.001秒）模拟费用恢复</div>
+                                            </div>
                                         </div>
+                                    </div>
+                                    <div class="mt-4 p-4 bg-yellow-50 rounded-lg border border-yellow-100">
+                                        <h4 class="font-medium text-yellow-800 mb-2 flex items-center">
+                                            <i class="fas fa-info-circle mr-2"></i>支持的时间格式
+                                        </h4>
+                                        <p class="text-sm text-yellow-700">
+                                            系统支持多种时间格式：<br>
+                                            <strong>MM:SS.fff</strong>（如2:59.000）、<strong>MM:SS</strong>（如2:59）、<br>
+                                            <strong>SS.fff</strong>（如59.000）、<strong>SS</strong>（如59）、<strong>纯数字</strong>（如179）
+                                        </p>
                                     </div>
                                 </div>
                                 
@@ -1462,8 +1544,7 @@
                         <!-- 费用计算规则 -->
                         <section id="manual-calculation" class="manual-section">
                             <div class="section-header mb-4">
-                                <h2 class="text-2xl font-bold text-gray-900 flex items-center">
-                                    <span class="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center mr-3 text-sm">5</span>
+                                <h2 class="text-2xl font-bold text-gray-900">
                                     费用计算规则
                                 </h2>
                                 <div class="h-1 w-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full mt-2"></div>
@@ -1513,24 +1594,24 @@
                                         <!-- 实际扣除费用计算 -->
                                         <div class="formula-item p-4 bg-green-50 rounded-lg border border-green-100">
                                             <div class="formula-text font-mono text-gray-900 mb-2">
-                                                <strong>实际扣除费用</strong> = max(0, 技能费用 - Σ减费数值 + Σ更改扣除数值)
+                                                <strong>实际扣除费用</strong> = max(0, 技能费用 - 减费数值)
                                             </div>
                                             <div class="text-sm text-gray-600">
                                                 <i class="fas fa-info-circle mr-1"></i>
-                                                减费数值来自<strong>减费效果规则</strong>，更改扣除数值来自<strong>更改扣除规则</strong><br>
+                                                减费数值来自<strong>减费效果规则</strong>，后应用的减费效果会覆盖之前的减费效果<br>
                                                 <i class="fas fa-info-circle mr-1"></i>
-                                                <strong>更改扣除功能</strong>：直接覆盖目标行的费用扣除，即使目标行已被赋予减费效果，减费效果的生效次数仍会消耗
+                                                <strong>更改扣除功能</strong>：直接覆盖目标行的费用扣除，使用规则的changeValue作为最终费用
                                             </div>
                                         </div>
                                         
                                         <!-- 剩余费用计算 -->
                                         <div class="formula-item p-4 bg-orange-50 rounded-lg border border-orange-100">
                                             <div class="formula-text font-mono text-gray-900 mb-2">
-                                                <strong>剩余费用</strong> = min(10, max(0, 剩余费用 + 总回费 - 实际扣除费用))
+                                                <strong>剩余费用</strong> = max(0, 触发费用 - 费用扣除)
                                             </div>
                                             <div class="text-sm text-gray-600">
                                                 <i class="fas fa-info-circle mr-1"></i>
-                                                费用上限固定为10c，初始费用为0c
+                                                简化后的剩余费用计算公式，直接用触发费用减去费用扣除
                                             </div>
                                         </div>
                                         
@@ -1543,19 +1624,11 @@
                                             <ul class="space-y-2 text-sm text-gray-700">
                                                 <li class="flex items-start gap-2">
                                                     <i class="fas fa-check text-green-500 mt-1"></i>
-                                                    <span><strong>减费效果</strong>：直接降低技能费用，减少实际扣除费用。可设置生效次数，次数用完后效果消失，角色技能费用恢复原值</span>
+                                                    <span><strong>减费效果</strong>：直接降低技能费用，减少实际扣除费用。可设置生效次数，次数用完后效果消失，角色技能费用恢复原值。<strong>注意：后应用的减费效果会覆盖之前的减费效果，而非叠加</strong></span>
                                                 </li>
                                                 <li class="flex items-start gap-2">
                                                     <i class="fas fa-check text-green-500 mt-1"></i>
-                                                    <span><strong>瞬间回费</strong>：立即增加总回费，提高剩余费用</span>
-                                                </li>
-                                                <li class="flex items-start gap-2">
-                                                    <i class="fas fa-check text-green-500 mt-1"></i>
-                                                    <span><strong>持续回费</strong>：提高回费速度，增加基础回费</span>
-                                                </li>
-                                                <li class="flex items-start gap-2">
-                                                    <i class="fas fa-check text-green-500 mt-1"></i>
-                                                    <span><strong>更改扣除</strong>：直接覆盖目标行的费用扣除数值，即使目标行已被赋予减费效果，减费效果的生效次数仍会消耗</span>
+                                                    <span><strong>更改扣除</strong>：直接覆盖目标行的费用扣除数值，使用规则的changeValue作为最终费用</span>
                                                 </li>
                                                 <li class="flex items-start gap-2">
                                                     <i class="fas fa-check text-green-500 mt-1"></i>
@@ -1571,8 +1644,7 @@
                         <!-- 时间格式说明 -->
                         <section id="manual-time" class="manual-section">
                             <div class="section-header mb-4">
-                                <h2 class="text-2xl font-bold text-gray-900 flex items-center">
-                                    <span class="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center mr-3 text-sm">6</span>
+                                <h2 class="text-2xl font-bold text-gray-900">
                                     时间格式说明
                                 </h2>
                                 <div class="h-1 w-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full mt-2"></div>
@@ -1621,8 +1693,7 @@
                         <!-- 注意事项 -->
                         <section id="manual-notes" class="manual-section">
                             <div class="section-header mb-4">
-                                <h2 class="text-2xl font-bold text-gray-900 flex items-center">
-                                    <span class="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center mr-3 text-sm">7</span>
+                                <h2 class="text-2xl font-bold text-gray-900">
                                     注意事项
                                 </h2>
                                 <div class="h-1 w-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full mt-2"></div>
@@ -1684,14 +1755,32 @@
                                         </div>
                                     </div>
                                     <div class="note-item p-4 bg-orange-50 rounded-lg border border-orange-100 flex items-start gap-3">
-                                        <i class="fas fa-lightbulb text-orange-600 mt-1"></i>
-                                        <div>
-                                            <h3 class="font-medium text-orange-900 mb-1">减费效果生效次数</h3>
-                                            <p class="text-sm text-orange-800">
-                                                减费效果的生效次数用完后，角色技能费用会自动恢复原值
-                                            </p>
-                                        </div>
+                                    <i class="fas fa-lightbulb text-orange-600 mt-1"></i>
+                                    <div>
+                                        <h3 class="font-medium text-orange-900 mb-1">减费效果生效次数</h3>
+                                        <p class="text-sm text-orange-800">
+                                            减费效果的生效次数用完后，角色技能费用会自动恢复原值
+                                        </p>
                                     </div>
+                                </div>
+                                <div class="note-item p-4 bg-yellow-50 rounded-lg border border-yellow-100 flex items-start gap-3">
+                                    <i class="fas fa-bolt text-yellow-600 mt-1"></i>
+                                    <div>
+                                        <h3 class="font-medium text-yellow-900 mb-1">持续回费功能</h3>
+                                        <p class="text-sm text-yellow-800">
+                                            持续回费功能会在指定时间范围内增加回费速度，选择目标行后点击"持续回费功能"按钮进行设置
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="note-item p-4 bg-green-50 rounded-lg border border-green-100 flex items-start gap-3">
+                                    <i class="fas fa-trash text-green-600 mt-1"></i>
+                                    <div>
+                                        <h3 class="font-medium text-green-900 mb-1">数据项删除</h3>
+                                        <p class="text-sm text-green-800">
+                                            删除数据项时，系统会自动删除关联的规则，确保数据一致性
+                                        </p>
+                                    </div>
+                                </div>
                                 </div>
                             </div>
                         </section>
@@ -1727,11 +1816,16 @@
             </div>
             <div class="modal-body">
                 <div class="text-center mb-4">
-                    <i class="fas fa-calculator text-primary text-4xl mb-2"></i>
+                    <img src="https://q1.qlogo.cn/g?b=qq&nk=1441736707&s=100" alt="作者头像" class="w-20 h-20 rounded-full mb-2 border-2 border-primary">
                     <h4 class="text-xl font-bold">碧蓝档案轴计算器</h4>
                     <p class="text-gray-500">版本 2.0.0</p>
                 </div>
                 <p class="text-center mb-4">一款用于管理游戏角色属性、精准计算技能费用与回费时间的工具，帮助玩家高效规划游戏内角色技能释放节奏。</p>
+                <div class="text-center mb-4">
+                    <button id="authorHomepage" class="btn-secondary">
+                        <i class="fas fa-user mr-1"></i>前往作者主页
+                    </button>
+                </div>
                 <div class="text-center text-sm text-gray-500">
                     <p>© 2025 碧蓝档案轴计算器</p>
                     <p>本工具仅供学习交流使用，非官方工具</p>

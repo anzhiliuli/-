@@ -7,54 +7,22 @@ class Calculator {
     }
 
     // 计算总回费速度（考虑所有角色和持续回费功能）
-    calculateTotalRecoveryRate(currentTime = 0) {
+    calculateTotalRecoveryRate(currentTime = 0, resetCounters = false) {
+        // 如果需要重置规则计数器（例如在编辑表单计算时）
+        if (resetCounters) {
+            this.resetRuleCounters();
+        }
+        
         const characters = this.dataManager.getCharacters();
         let totalRecoveryRate = 0;
         
         // 为每个角色计算调整后的回费速度，然后相加得到总回费速度
         characters.forEach(char => {
             // 应用费用效果规则和角色回费属性
+            // 持续回费已经在applyChargeIncreaseRules方法中处理
             const adjustedRecoveryRate = this.applyChargeIncreaseRules(char.id, char.costRecoveryRate, currentTime);
             totalRecoveryRate += adjustedRecoveryRate;
         });
-        
-        // 应用持续回费功能
-        const continuousChargeData = this.dataManager.continuousChargeData;
-        if (continuousChargeData) {
-            const { targetRowId, delayTime, duration, recoveryIncrease } = continuousChargeData;
-            
-            // 获取目标数据项
-            const targetItem = this.dataManager.dataItems.find(item => item.id == targetRowId);
-            if (targetItem) {
-                // 目标行时间已经是秒数（数字类型）
-                const targetTimeSeconds = targetItem.time;
-                
-                // 计算开始生效时间：目标行时间（秒） - 延迟时间
-                const startTime = targetTimeSeconds - delayTime;
-                // 计算结束生效时间：开始生效时间 - 持续时间
-                const endTime = startTime - duration;
-                
-                // 将currentTime转换为秒数（如果是字符串格式）
-                let currentTimeInSeconds = currentTime;
-                if (typeof currentTime === 'string') {
-                    const [currMinutes, currSeconds] = currentTime.split(':');
-                    currentTimeInSeconds = parseInt(currMinutes) * 60 + parseFloat(currSeconds);
-                }
-                
-                // 检查当前时间是否在生效范围内
-                // 注意：不包括startTime本身，避免影响目标行的费用计算
-                if (currentTimeInSeconds >= endTime && currentTimeInSeconds < startTime) {
-                    // 增加回费速度
-                    totalRecoveryRate += recoveryIncrease;
-                }
-            } else {
-                // 如果找不到目标数据项，检查是否是因为数据项ID类型不匹配
-                console.log('持续回费功能：找不到目标数据项，targetRowId:', targetRowId);
-                console.log('数据项列表:', this.dataManager.dataItems.map(item => item.id));
-                console.log('数据项列表ID类型:', this.dataManager.dataItems.map(item => typeof item.id));
-                console.log('targetRowId类型:', typeof targetRowId);
-            }
-        }
         
         return totalRecoveryRate;
     }
@@ -117,10 +85,14 @@ class Calculator {
         let reductionValue = 0;
         let matchedRule = null;
         
-        // 应用水白的第一次使用减费效果（初始默认值）
+        // 应用水白的第一次使用减费效果（基于特殊行）
         const character = this.dataManager.getCharacterById(characterId);
         const hasSuibai = this.dataManager.getCharacters().some(char => char.name === '水白');
-        if (hasSuibai && character && character.name !== '水白' && useCount === 1) {
+        // 检查是否有水白的特殊行
+        const hasSuibaiSpecialRow = this.dataManager.getAllDataItems().some(item => 
+            item.action === '减费' && this.dataManager.getCharacterById(item.characterId)?.name === '水白'
+        );
+        if (hasSuibai && hasSuibaiSpecialRow && character && character.name !== '水白' && useCount === 1) {
             const suibaiReductionKey = `suibai_reduction_${characterId}`;
             if (!this.ruleCounters[suibaiReductionKey]) {
                 reductionValue = 1; // 水白的减费值
@@ -181,9 +153,17 @@ class Calculator {
     applyChargeIncreaseRules(characterId, recoveryRate, currentTime = 0) {
         const rules = this.dataManager.getRules();
         const character = this.dataManager.getCharacterById(characterId);
-        let finalRecoveryRate = recoveryRate;
         
-        // 2. 处理费用效果规则
+        // 1. 先获取全局回费增加属性（所有角色使用相同的回费增加百分比）
+        // 查找设置了回费增加的角色（isChargePercentage为true的角色）
+        const characters = this.dataManager.getCharacters();
+        const chargeIncreaseCharacter = characters.find(char => char.isChargePercentage);
+        let totalPercentageIncrease = chargeIncreaseCharacter && chargeIncreaseCharacter.costIncrease ? chargeIncreaseCharacter.costIncrease : 0;
+        
+        // 2. 收集所有适用的费用效果规则
+        let fixedChargeModifications = 0;
+        
+        // 3. 处理费用效果规则
         rules.forEach(rule => {
             // 统一使用targetCharacterIds数组检查规则是否作用于当前角色
             const isRuleApplied = Array.isArray(rule.targetCharacterIds) && rule.targetCharacterIds.includes(characterId);
@@ -210,19 +190,19 @@ class Calculator {
                             // 费用效果规则
                             if (rule.effectType === 'increase') {
                                 if (rule.chargeType === 'percentage') {
-                                    // 百分比增加
-                                    finalRecoveryRate *= (1 + rule.chargeValue / 100);
+                                    // 百分比增加 - 累加到总百分比中
+                                    totalPercentageIncrease += rule.chargeValue;
                                 } else {
-                                    // 固定数值增加
-                                    finalRecoveryRate += rule.chargeValue;
+                                    // 固定数值增加 - 先累加
+                                    fixedChargeModifications += rule.chargeValue;
                                 }
                             } else {
                                 if (rule.chargeType === 'percentage') {
-                                    // 百分比减少
-                                    finalRecoveryRate *= (1 - rule.chargeValue / 100);
+                                    // 百分比减少 - 从总百分比中减去
+                                    totalPercentageIncrease -= rule.chargeValue;
                                 } else {
-                                    // 固定数值减少
-                                    finalRecoveryRate -= rule.chargeValue;
+                                    // 固定数值减少 - 先累加
+                                    fixedChargeModifications -= rule.chargeValue;
                                 }
                             }
                         }
@@ -232,17 +212,50 @@ class Calculator {
             }
         });
         
-        // 3. 应用全局回费增加属性（所有角色使用相同的回费增加百分比）
-        // 查找设置了回费增加的角色（isChargePercentage为true的角色）
-        const characters = this.dataManager.getCharacters();
-        const chargeIncreaseCharacter = characters.find(char => char.isChargePercentage);
+        // 4. 处理持续回费功能
+        const continuousChargeData = this.dataManager.continuousChargeData;
+        let continuousChargeIncrease = 0;
         
-        // 如果找到设置了回费增加的角色，应用其百分比到所有角色
-        if (chargeIncreaseCharacter && chargeIncreaseCharacter.costIncrease) {
-            finalRecoveryRate *= (1 + chargeIncreaseCharacter.costIncrease / 100);
+        if (continuousChargeData) {
+            const { targetRowId, delayTime, duration, recoveryIncrease } = continuousChargeData;
+            
+            // 获取目标数据项
+            const targetItem = this.dataManager.dataItems.find(item => item.id == targetRowId);
+            if (targetItem && targetItem.characterId == characterId) {
+                // 目标行时间已经是秒数（数字类型）
+                const targetTimeSeconds = targetItem.time;
+                
+                // 计算开始生效时间：目标行时间（秒） - 延迟时间
+                const startTime = targetTimeSeconds - delayTime;
+                // 计算结束生效时间：开始生效时间 - 持续时间
+                const endTime = startTime - duration;
+                
+                // 将currentTime转换为秒数（如果是字符串格式）
+                let currentTimeInSeconds = currentTime;
+                if (typeof currentTime === 'string') {
+                    const [currMinutes, currSeconds] = currentTime.split(':');
+                    currentTimeInSeconds = parseInt(currMinutes) * 60 + parseFloat(currSeconds);
+                }
+                
+                // 检查当前时间是否在生效范围内
+                // 注意：不包括startTime本身，避免影响目标行的费用计算
+                if (currentTimeInSeconds >= endTime && currentTimeInSeconds < startTime) {
+                    // 当前角色是持续回费的目标角色，累加到固定数值修改中
+                    continuousChargeIncrease = recoveryIncrease;
+                }
+            }
         }
         
-        // 确保回费速度不小于0
+        // 5. 计算总百分比增加系数
+        const totalChargeIncrease = 1 + totalPercentageIncrease / 100;
+        
+        // 6. 应用总百分比增加到基础回费速度
+        let finalRecoveryRate = recoveryRate * totalChargeIncrease;
+        
+        // 7. 应用固定数值修改和持续回费，受到总百分比增加影响
+        finalRecoveryRate += (fixedChargeModifications + continuousChargeIncrease) * totalChargeIncrease;
+        
+        // 8. 确保回费速度不小于0
         finalRecoveryRate = Math.max(0, finalRecoveryRate);
         
         return finalRecoveryRate;

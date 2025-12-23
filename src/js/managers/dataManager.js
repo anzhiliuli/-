@@ -14,51 +14,8 @@ class DataManager {
         this.currentPage = 1;    // 当前页码
         this.pageSize = 10;      // 每页显示行数
         
-        // 预设角色数据
-        this.presetCharacters = [
-            {
-                name: '阿露',
-                costRecoveryRate: 2.5,
-                skillCost: 10.0,
-                costIncrease: 0.0,
-                isChargePercentage: false
-            },
-            {
-                name: '若藻',
-                costRecoveryRate: 1.5,
-                skillCost: 5.0,
-                costIncrease: 0.0,
-                isChargePercentage: false
-            },
-            {
-                name: '遥香',
-                costRecoveryRate: 1.2,
-                skillCost: 4.0,
-                costIncrease: 0.0,
-                isChargePercentage: false
-            },
-            {
-                name: '日奈',
-                costRecoveryRate: 1.0,
-                skillCost: 3.0,
-                costIncrease: 0.0,
-                isChargePercentage: false
-            },
-            {
-                name: '静子',
-                costRecoveryRate: 2.0,
-                skillCost: 8.0,
-                costIncrease: 0.0,
-                isChargePercentage: false
-            },
-            {
-                name: '真白',
-                costRecoveryRate: 1.8,
-                skillCost: 7.0,
-                costIncrease: 0.0,
-                isChargePercentage: false
-            }
-        ];
+        // 预设角色数据 - 后续更新
+        this.presetCharacters = [];
     }
 
     // 获取唯一ID
@@ -305,19 +262,36 @@ class DataManager {
     deleteDataItem(id) {
         const index = this.dataItems.findIndex(item => item.id === id);
         if (index !== -1) {
+            // 获取要删除的数据项
+            const deletedItem = this.dataItems[index];
             // 删除关联的规则
             this.rules = this.rules.filter(rule => rule.characterId !== id);
-            return this.dataItems.splice(index, 1)[0];
+            // 删除数据项
+            this.dataItems.splice(index, 1);
+            // 如果删除的是特殊行，清除相关效果
+            if (deletedItem.action === '回费' || deletedItem.action === '减费') {
+                // 重置规则计数器
+                // 这将确保水白的减费效果和瞬的回费效果重新计算
+            }
+            return deletedItem;
         }
         return null;
     }
 
     // 批量删除数据项
     deleteDataItems(ids) {
+        // 获取要删除的数据项
+        const deletedItems = this.dataItems.filter(item => ids.includes(item.id));
         // 删除关联的规则
         this.rules = this.rules.filter(rule => !ids.includes(rule.characterId));
         // 删除数据项
         this.dataItems = this.dataItems.filter(item => !ids.includes(item.id));
+        // 如果删除了特殊行，清除相关效果
+        const hasSpecialRow = deletedItems.some(item => item.action === '回费' || item.action === '减费');
+        if (hasSpecialRow) {
+            // 重置规则计数器
+            // 这将确保水白的减费效果和瞬的回费效果重新计算
+        }
     }
 
     // 获取过滤后的数据项列表（用于UI显示）

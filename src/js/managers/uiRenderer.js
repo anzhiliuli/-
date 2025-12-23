@@ -363,13 +363,18 @@ class UIRenderer {
         const currentPage = this.dataManager.getCurrentPage();
         const totalPages = this.dataManager.getTotalPages();
         
-        // 如果只有一页数据，不显示分页控件
+        // 获取分页容器
+        let paginationContainer = document.getElementById('dataItemsPagination');
+        
+        // 如果只有一页数据，移除分页控件并返回
         if (totalPages <= 1) {
+            if (paginationContainer) {
+                paginationContainer.remove();
+            }
             return;
         }
         
-        // 获取或创建分页容器
-        let paginationContainer = document.getElementById('dataItemsPagination');
+        // 如果没有分页容器，创建一个
         if (!paginationContainer) {
             // 创建分页容器
             paginationContainer = document.createElement('div');

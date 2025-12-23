@@ -439,6 +439,14 @@ class EventListeners {
             });
         }
         
+        // 前往作者主页按钮
+        const authorHomepageBtn = document.getElementById('authorHomepage');
+        if (authorHomepageBtn) {
+            authorHomepageBtn.addEventListener('click', () => {
+                window.open('https://space.bilibili.com/92154003?spm_id_from=333.1007.0.0', '_blank');
+            });
+        }
+        
         // 应用筛选按钮
         const applyFilterBtn = document.getElementById('applyFilterBtn');
         if (applyFilterBtn) {
@@ -961,42 +969,55 @@ class EventListeners {
         const presets = this.dataManager.getPresetCharacters();
         
         // 生成预设角色列表
-        presets.forEach(preset => {
-            const isAdded = this.dataManager.isCharacterAdded(preset.name);
-            
-            const presetItem = document.createElement('div');
-            presetItem.className = 'flex justify-between items-center p-3 bg-gray-50 rounded shadow-sm';
-            presetItem.innerHTML = `
-                <div class="flex-1">
-                    <h5 class="font-medium">${preset.name}</h5>
-                    <div class="text-sm text-gray-500 mt-1">
-                        <div>回复速度: ${preset.costRecoveryRate.toFixed(2)} c/s</div>
-                        <div>技能费用: ${preset.skillCost.toFixed(2)} c</div>
-                        <div>回费增加: ${preset.costIncrease.toFixed(2)}%</div>
+        if (presets.length > 0) {
+            presets.forEach(preset => {
+                const isAdded = this.dataManager.isCharacterAdded(preset.name);
+                
+                const presetItem = document.createElement('div');
+                presetItem.className = 'flex justify-between items-center p-3 bg-gray-50 rounded shadow-sm';
+                presetItem.innerHTML = `
+                    <div class="flex-1">
+                        <h5 class="font-medium">${preset.name}</h5>
+                        <div class="text-sm text-gray-500 mt-1">
+                            <div>回复速度: ${preset.costRecoveryRate.toFixed(2)} c/s</div>
+                            <div>技能费用: ${preset.skillCost.toFixed(2)} c</div>
+                            <div>回费增加: ${preset.costIncrease.toFixed(2)}%</div>
+                        </div>
                     </div>
-                </div>
-                <div class="ml-4">
-                    <button 
-                        class="add-preset-btn btn ${isAdded ? 'btn-outline' : 'btn-primary'}" 
-                        ${isAdded ? 'disabled' : ''}
-                        data-name="${preset.name}"
-                    >
-                        ${isAdded ? '<i class="fas fa-check"></i> 已添加' : '<i class="fas fa-plus"></i> 添加'}
-                    </button>
+                    <div class="ml-4">
+                        <button 
+                            class="add-preset-btn btn ${isAdded ? 'btn-outline' : 'btn-primary'}" 
+                            ${isAdded ? 'disabled' : ''}
+                            data-name="${preset.name}"
+                        >
+                            ${isAdded ? '<i class="fas fa-check"></i> 已添加' : '<i class="fas fa-plus"></i> 添加'}
+                        </button>
+                    </div>
+                `;
+                
+                presetsList.appendChild(presetItem);
+            });
+            
+            // 添加预设角色按钮事件
+            const addPresetBtns = presetsList.querySelectorAll('.add-preset-btn');
+            addPresetBtns.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const presetName = e.target.closest('.add-preset-btn').dataset.name;
+                    this.addPresetCharacter(presetName);
+                });
+            });
+        } else {
+            // 预设角色列表为空时显示提示信息
+            presetsList.innerHTML = `
+                <div class="text-center py-12 bg-gray-50 rounded-lg">
+                    <div class="bg-blue-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-clock text-2xl text-blue-600"></i>
+                    </div>
+                    <h5 class="text-lg font-semibold text-gray-800 mb-2">预设角色功能开发中</h5>
+                    <p class="text-gray-500">角色预设功能将在后续版本更新，敬请期待</p>
                 </div>
             `;
-            
-            presetsList.appendChild(presetItem);
-        });
-        
-        // 添加预设角色按钮事件
-        const addPresetBtns = presetsList.querySelectorAll('.add-preset-btn');
-        addPresetBtns.forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const presetName = e.target.closest('.add-preset-btn').dataset.name;
-                this.addPresetCharacter(presetName);
-            });
-        });
+        }
         
         // 显示模态框
         this.modalManager.showModal('characterPresetsModal');
@@ -1734,34 +1755,24 @@ class EventListeners {
         const characterSelect = document.getElementById('editTriggerCharacter');
         
         // 时间输入变化时计算费用
-        this.realTimeCalculateCost = (e) => {
+        this.handleTimeChange = () => {
             this.calculateCostFromTime();
         };
         
         // 费用输入变化时计算时间
-        this.realTimeCalculateTime = (e) => {
+        this.handleCostChange = () => {
             this.calculateTimeFromCost();
         };
         
         // 角色变化时重新计算
-        this.realTimeRecalculateOnCharacterChange = (e) => {
-            // 检查当前是时间还是费用驱动的计算
-            const timeStr = timeInput.value;
-            const costValue = parseFloat(costInput.value);
-            
-            if (!isNaN(costValue) && costValue > 0) {
-                // 如果费用有值，重新计算时间
-                this.calculateTimeFromCost();
-            } else {
-                // 否则重新计算费用
-                this.calculateCostFromTime();
-            }
+        this.handleCharacterChange = () => {
+            this.calculateCostFromTime();
         };
         
         // 添加事件监听器
-        timeInput.addEventListener('input', this.realTimeCalculateCost);
-        costInput.addEventListener('input', this.realTimeCalculateTime);
-        characterSelect.addEventListener('change', this.realTimeRecalculateOnCharacterChange);
+        timeInput.addEventListener('input', this.handleTimeChange);
+        costInput.addEventListener('input', this.handleCostChange);
+        characterSelect.addEventListener('change', this.handleCharacterChange);
     }
     
     // 移除编辑表单实时计算事件监听器
@@ -1771,98 +1782,301 @@ class EventListeners {
         const characterSelect = document.getElementById('editTriggerCharacter');
         
         // 移除事件监听器
-        if (timeInput) timeInput.removeEventListener('input', this.realTimeCalculateCost);
-        if (costInput) costInput.removeEventListener('input', this.realTimeCalculateTime);
-        if (characterSelect) characterSelect.removeEventListener('change', this.realTimeRecalculateOnCharacterChange);
+        if (timeInput) timeInput.removeEventListener('input', this.handleTimeChange);
+        if (costInput) costInput.removeEventListener('input', this.handleCostChange);
+        if (characterSelect) characterSelect.removeEventListener('change', this.handleCharacterChange);
         
         // 清空引用
-        this.realTimeCalculateCost = null;
-        this.realTimeCalculateTime = null;
-        this.realTimeRecalculateOnCharacterChange = null;
+        this.handleTimeChange = null;
+        this.handleCostChange = null;
+        this.handleCharacterChange = null;
     }
     
     // 从时间计算费用
     calculateCostFromTime() {
+        // 获取表单数据
         const itemId = parseInt(document.getElementById('editDataItemId').value);
         const timeStr = document.getElementById('editTime').value;
         const characterId = parseInt(document.getElementById('editTriggerCharacter').value);
         
+        // 验证输入
         if (!itemId || !timeStr || !characterId) return;
         
-        // 获取原始数据项
+        // 获取所有数据项和原始数据项
+        const allItems = this.dataManager.getAllDataItems();
         const originalItem = this.dataManager.getDataItemById(itemId);
         if (!originalItem) return;
         
-        // 解析时间格式
-        let timeInSeconds = 0;
-        if (timeStr) {
-            if (!isNaN(timeStr)) {
-                timeInSeconds = parseFloat(timeStr);
-            } else {
-                const timeParts = timeStr.split(':');
-                if (timeParts.length === 2) {
-                    const minutes = parseInt(timeParts[0]) || 0;
-                    const secondsParts = timeParts[1].split('.');
-                    const seconds = parseInt(secondsParts[0]) || 0;
-                    const milliseconds = parseInt(secondsParts[1]) || 0;
-                    timeInSeconds = minutes * 60 + seconds + milliseconds / 1000;
-                } else if (timeParts.length === 1) {
-                    const secondsParts = timeParts[0].split('.');
-                    const seconds = parseInt(secondsParts[0]) || 0;
-                    const milliseconds = parseInt(secondsParts[1]) || 0;
-                    timeInSeconds = seconds + milliseconds / 1000;
-                }
-            }
+        // 找到当前数据项在列表中的索引
+        const currentIndex = allItems.findIndex(item => item.id === originalItem.id);
+        if (currentIndex === -1) return;
+        
+        // 解析时间为秒数
+        const timeInSeconds = this.parseTimeString(timeStr);
+        
+        // 重置规则计数器
+        this.calculator.resetRuleCounters();
+        
+        // 获取上一个数据项的剩余费用
+        let previousRemainingCost = 0;
+        if (currentIndex > 0) {
+            const previousItem = allItems[currentIndex - 1];
+            previousRemainingCost = previousItem.remainingCost;
         }
         
-        const character = this.dataManager.getCharacterById(characterId);
-        if (character) {
-            // 计算时间变化量
-            const timeDiff = timeInSeconds - originalItem.time;
-            // 根据时间变化量计算费用变化量（时间增加，费用减少；时间减少，费用增加）
-            const costDiff = -timeDiff * character.costRecoveryRate;
-            // 计算新费用
-            const newCost = originalItem.cost + costDiff;
-            // 确保费用不小于0
-            const calculatedCost = Math.max(newCost, 0);
-            
-            // 更新费用输入框
-            document.getElementById('editTriggerCost').value = calculatedCost.toFixed(2);
-        }
+        // 计算新的触发费用：上一个数据项的剩余费用 + 从当前时间到上一个时间的费用恢复
+        const previousItemTime = currentIndex > 0 ? allItems[currentIndex - 1].time : timeInSeconds;
+        const timeInterval = previousItemTime - timeInSeconds;
+        const recoveredCost = this.calculateCostRecoveryFromInterval(timeInterval, previousItemTime);
+        
+        // 计算新费用
+        const newCost = previousRemainingCost + recoveredCost;
+        const calculatedCost = Math.max(newCost, 0); // 确保费用不小于0
+        
+        // 更新费用输入框
+        document.getElementById('editTriggerCost').value = calculatedCost.toFixed(2);
     }
     
     // 从费用计算时间
     calculateTimeFromCost() {
+        // 获取表单数据
         const itemId = parseInt(document.getElementById('editDataItemId').value);
         const costValue = parseFloat(document.getElementById('editTriggerCost').value);
         const characterId = parseInt(document.getElementById('editTriggerCharacter').value);
         
+        // 验证输入
         if (!itemId || isNaN(costValue) || !characterId) return;
         
-        // 获取原始数据项
+        // 获取所有数据项和原始数据项
+        const allItems = this.dataManager.getAllDataItems();
         const originalItem = this.dataManager.getDataItemById(itemId);
         if (!originalItem) return;
         
-        const character = this.dataManager.getCharacterById(characterId);
-        if (character) {
-            // 计算费用变化量
-            const costDiff = costValue - originalItem.cost;
-            // 根据费用变化量计算时间变化量（费用增加，时间减少；费用减少，时间增加）
-            const timeDiff = costDiff / character.costRecoveryRate;
-            // 计算新时间
-            const newTime = originalItem.time - timeDiff;
-            
-            // 格式化时间为 00:00.000 格式
-            const formatTime = (seconds) => {
-                const minutes = Math.floor(seconds / 60);
-                const remainingSeconds = seconds % 60;
-                const milliseconds = Math.floor((remainingSeconds % 1) * 1000);
-                return `${minutes.toString().padStart(2, '0')}:${Math.floor(remainingSeconds).toString().padStart(2, '0')}.${milliseconds.toString().padStart(3, '0')}`;
-            };
-            
-            // 更新时间输入框
-            document.getElementById('editTime').value = formatTime(newTime);
+        // 找到当前数据项在列表中的索引
+        const currentIndex = allItems.findIndex(item => item.id === originalItem.id);
+        if (currentIndex === -1) return;
+        
+        // 重置规则计数器
+        this.calculator.resetRuleCounters();
+        
+        // 获取上一个数据项的剩余费用
+        let previousRemainingCost = 0;
+        if (currentIndex > 0) {
+            const previousItem = allItems[currentIndex - 1];
+            previousRemainingCost = previousItem.remainingCost;
         }
+        
+        // 计算所需费用差：目标费用 - 上一个数据项的剩余费用
+        const requiredCost = costValue - previousRemainingCost;
+        if (requiredCost <= 0) {
+            // 如果所需费用为负或零，时间为上一个数据项的时间
+            const previousItemTime = currentIndex > 0 ? allItems[currentIndex - 1].time : 0;
+            document.getElementById('editTime').value = this.formatTime(previousItemTime);
+            return;
+        }
+        
+        // 计算所需时间：从所需费用计算时间
+        const previousItemTime = currentIndex > 0 ? allItems[currentIndex - 1].time : 0;
+        const timeDiff = this.calculateTimeForRequiredCost(requiredCost, previousItemTime);
+        
+        // 计算新时间
+        const newTime = previousItemTime - timeDiff;
+        
+        // 格式化时间并更新输入框
+        document.getElementById('editTime').value = this.formatTime(newTime);
+    }
+    
+    // 解析时间字符串为秒数
+    parseTimeString(timeStr) {
+        if (!timeStr) return 0;
+        
+        // 直接解析数字
+        if (!isNaN(timeStr)) {
+            return parseFloat(parseFloat(timeStr).toFixed(3));
+        }
+        
+        // 标准化时间字符串，确保格式一致
+        const normalizedTimeStr = timeStr.trim();
+        
+        // 解析MM:SS.fff格式或MM:SS格式
+        const timeParts = normalizedTimeStr.split(':');
+        if (timeParts.length === 2) {
+            const minutes = parseInt(timeParts[0]) || 0;
+            const secondsPart = timeParts[1];
+            
+            // 检查是否包含毫秒部分
+            if (secondsPart.includes('.')) {
+                const secondsParts = secondsPart.split('.');
+                const seconds = parseInt(secondsParts[0]) || 0;
+                const millisecondsStr = secondsParts[1] || '0';
+                // 确保毫秒部分有3位数字
+                const milliseconds = parseInt(millisecondsStr.padEnd(3, '0')) || 0;
+                return parseFloat((minutes * 60 + seconds + milliseconds / 1000).toFixed(3));
+            } else {
+                // 没有毫秒部分，直接解析秒数
+                const seconds = parseInt(secondsPart) || 0;
+                return parseFloat((minutes * 60 + seconds).toFixed(3));
+            }
+        }
+        
+        // 解析SS.fff格式或SS格式
+        if (normalizedTimeStr.includes('.')) {
+            const secondsParts = normalizedTimeStr.split('.');
+            const seconds = parseInt(secondsParts[0]) || 0;
+            const millisecondsStr = secondsParts[1] || '0';
+            // 确保毫秒部分有3位数字
+            const milliseconds = parseInt(millisecondsStr.padEnd(3, '0')) || 0;
+            return parseFloat((seconds + milliseconds / 1000).toFixed(3));
+        } else {
+            // 没有毫秒部分，直接解析秒数
+            const seconds = parseInt(normalizedTimeStr) || 0;
+            return parseFloat(seconds.toFixed(3));
+        }
+    }
+    
+    // 格式化秒数为时间字符串 (MM:SS.fff)
+    formatTime(seconds) {
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = seconds % 60;
+        const secondsInt = Math.floor(remainingSeconds);
+        const milliseconds = Math.floor((remainingSeconds - secondsInt) * 1000);
+        return `${minutes.toString().padStart(2, '0')}:${secondsInt.toString().padStart(2, '0')}.${milliseconds.toString().padStart(3, '0')}`;
+    }
+    
+    // 计算费用变化
+    calculateCostDifference(timeDiff, originalTime, isTimeIncrease) {
+        const timeStep = 0.001; // 毫秒级精度
+        const absTimeDiff = Math.abs(timeDiff);
+        const totalSteps = Math.floor(absTimeDiff / timeStep);
+        const remainingTime = absTimeDiff % timeStep;
+        const stepDirection = isTimeIncrease ? 1 : -1;
+        
+        let costDiff = 0;
+        let currentTime = originalTime;
+        
+        // 模拟费用恢复过程 - 整数步
+        for (let i = 0; i < totalSteps; i++) {
+            const recoveryRate = this.calculator.calculateTotalRecoveryRate(currentTime);
+            const stepRecovery = recoveryRate * timeStep;
+            costDiff -= stepRecovery * stepDirection;
+            currentTime += timeStep * stepDirection;
+        }
+        
+        // 处理剩余时间
+        if (remainingTime > 0.0001) {
+            const recoveryRate = this.calculator.calculateTotalRecoveryRate(currentTime);
+            const stepRecovery = recoveryRate * remainingTime;
+            costDiff -= stepRecovery * stepDirection;
+        }
+        
+        return parseFloat(costDiff.toFixed(3));
+    }
+    
+    // 计算时间变化
+    calculateTimeDifference(costDiff, originalTime, isCostIncrease) {
+        const timeStep = 0.001; // 毫秒级精度
+        const targetCostDiff = Math.abs(costDiff);
+        const costDirection = isCostIncrease ? 1 : -1;
+        
+        let recoveredCost = 0;
+        let timeDiff = 0;
+        let currentTime = originalTime;
+        const maxIterations = 100000; // 防止异常情况下的死循环
+        let iterations = 0;
+        
+        // 模拟费用恢复过程，直到达到所需费用变化
+        while (Math.abs(recoveredCost) < targetCostDiff && iterations < maxIterations) {
+            iterations++;
+            
+            const recoveryRate = this.calculator.calculateTotalRecoveryRate(currentTime);
+            
+            // 防止回费速度为0导致死循环
+            if (recoveryRate < 0.001) break;
+            
+            const stepRecovery = recoveryRate * timeStep;
+            const adjustedStepRecovery = stepRecovery * costDirection;
+            
+            // 检查是否达到目标费用
+            if (Math.abs(recoveredCost + adjustedStepRecovery) >= targetCostDiff) {
+                // 计算精确时间，使用更精确的计算方式
+                const remainingCost = targetCostDiff - Math.abs(recoveredCost);
+                const exactTime = remainingCost / recoveryRate;
+                timeDiff += exactTime;
+                break;
+            }
+            
+            // 累加费用和时间
+            recoveredCost += Math.abs(adjustedStepRecovery);
+            timeDiff += timeStep;
+            currentTime -= timeStep * costDirection;
+        }
+        
+        return parseFloat(timeDiff.toFixed(3));
+    }
+    
+    // 计算指定时间间隔内的费用恢复
+    calculateCostRecoveryFromInterval(timeInterval, startTime) {
+        const timeStep = 0.001; // 毫秒级精度
+        const totalSteps = Math.floor(timeInterval / timeStep);
+        const remainingTime = timeInterval % timeStep;
+        
+        let totalRecoveredCost = 0;
+        let currentTime = startTime;
+        
+        // 模拟费用恢复过程 - 整数步
+        for (let i = 0; i < totalSteps; i++) {
+            const recoveryRate = this.calculator.calculateTotalRecoveryRate(currentTime);
+            const stepRecovery = recoveryRate * timeStep;
+            totalRecoveredCost += stepRecovery;
+            currentTime -= timeStep;
+        }
+        
+        // 处理剩余时间
+        if (remainingTime > 0.0001) {
+            const recoveryRate = this.calculator.calculateTotalRecoveryRate(currentTime);
+            const stepRecovery = recoveryRate * remainingTime;
+            totalRecoveredCost += stepRecovery;
+        }
+        
+        return parseFloat(totalRecoveredCost.toFixed(3));
+    }
+    
+    // 计算达到所需费用需要的时间
+    calculateTimeForRequiredCost(requiredCost, startTime) {
+        const timeStep = 0.001; // 毫秒级精度
+        let recoveredCost = 0;
+        let timeDiff = 0;
+        let currentTime = startTime;
+        const maxIterations = 100000; // 防止异常情况下的死循环
+        let iterations = 0;
+        
+        // 模拟费用恢复过程，直到达到所需费用
+        while (recoveredCost < requiredCost && iterations < maxIterations) {
+            iterations++;
+            
+            const recoveryRate = this.calculator.calculateTotalRecoveryRate(currentTime);
+            
+            // 防止回费速度为0导致死循环
+            if (recoveryRate < 0.001) break;
+            
+            const stepRecovery = recoveryRate * timeStep;
+            
+            // 检查是否达到目标费用
+            if (recoveredCost + stepRecovery >= requiredCost) {
+                // 计算精确时间
+                const remainingCost = requiredCost - recoveredCost;
+                const exactTime = remainingCost / recoveryRate;
+                timeDiff += exactTime;
+                break;
+            }
+            
+            // 累加费用和时间
+            recoveredCost += stepRecovery;
+            timeDiff += timeStep;
+            currentTime -= timeStep;
+        }
+        
+        return parseFloat(timeDiff.toFixed(3));
     }
     
     // 处理编辑数据项
