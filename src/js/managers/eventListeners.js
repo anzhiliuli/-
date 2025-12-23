@@ -553,6 +553,61 @@ class EventListeners {
             });
         }
         
+        // 持续回费功能按钮
+        const skillBindingBtn = document.getElementById('skillBindingBtn');
+        if (skillBindingBtn) {
+            skillBindingBtn.addEventListener('click', () => {
+                // 检查是否已选择目标行
+                if (!window.selectedTargetRowId) {
+                    this.modalManager.showToast('请先在数据表中选择一行作为目标行', 'error');
+                    return;
+                }
+                
+                // 显示持续回费功能模态框
+                this.modalManager.showModal('skillBindingModal');
+                
+                // 更新选中目标行信息
+                this.updateSelectedTargetRowInfo();
+                
+                // 为关闭按钮添加事件监听器
+                setTimeout(() => {
+                    // 关闭按钮
+                    const closeBtn = document.querySelector('#skillBindingModal .closeModal');
+                    if (closeBtn) {
+                        closeBtn.addEventListener('click', () => {
+                            this.modalManager.hideModal('skillBindingModal');
+                        });
+                    }
+                    
+                    // 取消按钮
+                    const cancelBtn = document.getElementById('cancelBindingBtn');
+                    if (cancelBtn) {
+                        cancelBtn.addEventListener('click', () => {
+                            this.modalManager.hideModal('skillBindingModal');
+                        });
+                    }
+                    
+                    // 保存按钮
+                    const saveBtn = document.getElementById('saveBindingBtn');
+                    if (saveBtn) {
+                        saveBtn.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            this.handleContinuousChargeSave();
+                        });
+                    }
+                    
+                    // 表单提交
+                    const form = document.getElementById('continuousChargeForm');
+                    if (form) {
+                        form.addEventListener('submit', (e) => {
+                            e.preventDefault();
+                            this.handleContinuousChargeSave();
+                        });
+                    }
+                }, 100);
+            });
+        }
+        
         // 角色特殊技能按钮
         const specialSkillsBtn = document.getElementById('specialSkillsBtn');
         if (specialSkillsBtn) {
@@ -988,6 +1043,84 @@ class EventListeners {
         );
     }
 
+    // 更新选中目标行信息
+    updateSelectedTargetRowInfo() {
+        const selectedRowInfoEl = document.getElementById('selectedTargetRowInfo');
+        if (!selectedRowInfoEl) return;
+        
+        // 获取选中的目标行ID
+        const selectedRowId = window.selectedTargetRowId;
+        if (!selectedRowId) {
+            selectedRowInfoEl.innerHTML = '<p class="text-sm text-gray-500">请先在数据表中选择一行作为目标行</p>';
+            return;
+        }
+        
+        // 获取数据项和对应的角色
+        const dataItem = this.dataManager.dataItems.find(item => item.id == selectedRowId);
+        if (!dataItem) {
+            selectedRowInfoEl.innerHTML = '<p class="text-sm text-red-500">未找到选中的数据项</p>';
+            return;
+        }
+        
+        const character = this.dataManager.getCharacterById(dataItem.characterId);
+        if (!character) {
+            selectedRowInfoEl.innerHTML = '<p class="text-sm text-red-500">未找到对应的角色</p>';
+            return;
+        }
+        
+        // 更新选中行信息
+        selectedRowInfoEl.innerHTML = `
+            <p class="text-sm font-medium">${dataItem.time} - ${character.name} (${dataItem.action})</p>
+            <p class="text-xs text-gray-500 mt-1">触发费用: ${dataItem.cost}c | 费用扣除: ${dataItem.costDeduction}c | 剩余费用: ${dataItem.remainingCost}c</p>
+        `;
+    }
+    
+    // 处理持续回费功能保存
+    handleContinuousChargeSave() {
+        // 获取表单数据
+        const delayTime = parseFloat(document.getElementById('delayTime').value);
+        const duration = parseFloat(document.getElementById('duration').value);
+        const recoveryIncrease = parseFloat(document.getElementById('recoveryIncrease').value);
+        
+        // 获取选中的目标行ID
+        const targetRowId = window.selectedTargetRowId;
+        
+        // 验证表单数据
+        if (!targetRowId || isNaN(delayTime) || isNaN(duration) || isNaN(recoveryIncrease)) {
+            this.modalManager.showToast('请填写所有必填字段', 'error');
+            return;
+        }
+        
+        // 验证数值范围
+        if (delayTime < 0 || duration < 0 || recoveryIncrease < 0) {
+            this.modalManager.showToast('数值不能为负数', 'error');
+            return;
+        }
+        
+        // 保存持续回费设置
+        const continuousChargeData = {
+            targetRowId: targetRowId,
+            delayTime: delayTime,
+            duration: duration,
+            recoveryIncrease: recoveryIncrease
+        };
+        
+        // 保存到数据管理器
+        this.dataManager.continuousChargeData = continuousChargeData;
+        
+        // 显示成功提示
+        this.modalManager.showToast('持续回费设置已保存', 'success');
+        
+        // 关闭模态框
+        this.modalManager.hideModal('skillBindingModal');
+        
+        // 重新计算数据项
+        this.calculator.recalculateAllItems();
+        
+        // 清空选中的目标行ID，确保下次操作时需要重新选择目标行
+        window.selectedTargetRowId = null;
+    }
+    
     // 验证角色表单
     validateCharacterForm(formData) {
         // 检查必填字段
@@ -1071,8 +1204,6 @@ class EventListeners {
         // 所有规则类型字段的ID
         const fieldIds = [
             'costReductionFields',
-
-            'continuousChargeFields',
             'costChangeFields',
             'chargeIncreaseFields'
         ];
@@ -1125,17 +1256,7 @@ class EventListeners {
                 }
                 break;
 
-            case 'continuousCharge':
-                const continuousChargeField = document.getElementById('continuousChargeFields');
-                if (continuousChargeField) {
-                    continuousChargeField.classList.remove('hidden');
-                    // 启用字段中的所有输入控件
-                    const inputs = continuousChargeField.querySelectorAll('input, select, textarea');
-                    inputs.forEach(input => {
-                        input.disabled = false;
-                    });
-                }
-                break;
+
             case 'costChange':
                 const costChangeField = document.getElementById('costChangeFields');
                 if (costChangeField) {
@@ -1303,14 +1424,7 @@ class EventListeners {
                 };
                 break;
 
-            case 'continuousCharge':
-                ruleData = {
-                    type: 'continuousCharge',
-                    characterId: characterId,
-                    shakeTime: parseFloat(document.getElementById('ccShakeTime').value) || 0,
-                    recoveryRate: parseFloat(document.getElementById('ccRecoveryRate').value) || 0
-                };
-                break;
+
             case 'costChange':
                 // 获取更改数值
                 const changeValue = parseFloat(document.getElementById('ccValue').value) || 0;
@@ -1368,26 +1482,34 @@ class EventListeners {
         // 根据规则类型打印相关字段信息
         switch (ruleType) {
             case 'costReduction':
-                console.log('crTargetCharacter:', document.getElementById('crTargetCharacter').value);
-                console.log('crEffectCount:', document.getElementById('crEffectCount').value);
-                console.log('crValue:', document.getElementById('crValue').value);
+                const crTargetCharacter = document.getElementById('crTargetCharacter');
+                const crEffectCount = document.getElementById('crEffectCount');
+                const crValue = document.getElementById('crValue');
+                if (crTargetCharacter) console.log('crTargetCharacter:', crTargetCharacter.value);
+                if (crEffectCount) console.log('crEffectCount:', crEffectCount.value);
+                if (crValue) console.log('crValue:', crValue.value);
                 break;
 
-            case 'continuousCharge':
-                console.log('ccShakeTime:', document.getElementById('ccShakeTime').value);
-                console.log('ccRecoveryRate:', document.getElementById('ccRecoveryRate').value);
-                break;
+
             case 'costChange':
-                console.log('ccValue:', document.getElementById('ccValue').value);
-                console.log('ccValue类型:', typeof document.getElementById('ccValue').value);
-                console.log('changeValue:', parseFloat(document.getElementById('ccValue').value));
+                const ccValue = document.getElementById('ccValue');
+                if (ccValue) {
+                    console.log('ccValue:', ccValue.value);
+                    console.log('ccValue类型:', typeof ccValue.value);
+                    console.log('changeValue:', parseFloat(ccValue.value));
+                }
                 break;
             case 'chargeIncrease':
-                console.log('ciActivationTime:', document.getElementById('ciActivationTime').value);
-                console.log('ciDuration:', document.getElementById('ciDuration').value);
-                console.log('ciChargeType:', document.getElementById('ciChargeType').value);
-                console.log('ciValue:', document.getElementById('ciValue').value);
-                console.log('ciEffectType:', document.getElementById('ciEffectType').value);
+                const ciActivationTime = document.getElementById('ciActivationTime');
+                const ciDuration = document.getElementById('ciDuration');
+                const ciChargeType = document.getElementById('ciChargeType');
+                const ciValue = document.getElementById('ciValue');
+                const ciEffectType = document.getElementById('ciEffectType');
+                if (ciActivationTime) console.log('ciActivationTime:', ciActivationTime.value);
+                if (ciDuration) console.log('ciDuration:', ciDuration.value);
+                if (ciChargeType) console.log('ciChargeType:', ciChargeType.value);
+                if (ciValue) console.log('ciValue:', ciValue.value);
+                if (ciEffectType) console.log('ciEffectType:', ciEffectType.value);
                 // 直接获取选中的角色ID进行打印，避免变量作用域问题
                 const checkedBoxes = document.querySelectorAll('#ciTargetScopeContainer input[type="checkbox"]:checked');
                 const selectedCharacterIds = Array.from(checkedBoxes).map(cb => parseInt(cb.value));
@@ -1492,9 +1614,6 @@ class EventListeners {
                 return !isNaN(formData.targetCharacterId) && 
                        !isNaN(formData.effectCount) && 
                        !isNaN(formData.reductionValue);
-            case 'continuousCharge':
-                return !isNaN(formData.shakeTime) && 
-                       !isNaN(formData.recoveryRate);
             case 'costChange':
                 return !isNaN(formData.changeValue);
             case 'chargeIncrease':
@@ -1546,6 +1665,16 @@ class EventListeners {
                 // 确保触发费用不小于最小费用扣除
                 if (cost < minCostDeduction) {
                     this.modalManager.showToast(`触发费用不能小于应用减费规则后的费用扣除（最小需要${minCostDeduction}c）`, 'error');
+                    return;
+                }
+            }
+            
+            // 检查触发费用是否小于上一行的剩余费用
+            const dataItems = this.dataManager.getDataItems();
+            if (dataItems.length > 0) {
+                const lastItem = dataItems[dataItems.length - 1];
+                if (cost < lastItem.remainingCost) {
+                    this.modalManager.showToast(`触发费用不能小于上一行的剩余费用（当前剩余费用：${lastItem.remainingCost}c）`, 'error');
                     return;
                 }
             }
@@ -1875,6 +2004,16 @@ class EventListeners {
             // 确保触发费用不小于最小费用扣除
             if (formData.cost < minCostDeduction) {
                 this.modalManager.showToast(`触发费用不能小于应用减费规则后的费用扣除（最小需要${minCostDeduction}c）`, 'error');
+                return false;
+            }
+        }
+        
+        // 检查触发费用是否小于上一行的剩余费用
+        const dataItems = this.dataManager.getDataItems();
+        if (dataItems.length > 0) {
+            const lastItem = dataItems[dataItems.length - 1];
+            if (formData.cost < lastItem.remainingCost) {
+                this.modalManager.showToast(`触发费用不能小于上一行的剩余费用（当前剩余费用：${lastItem.remainingCost}c）`, 'error');
                 return false;
             }
         }

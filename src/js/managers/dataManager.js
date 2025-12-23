@@ -8,6 +8,7 @@ class DataManager {
         this.totalCost = 10;     // 总费用上限
         this.nextId = 1;         // 用于生成唯一ID的计数器
         this.hideSpecialRows = false; // 是否隐藏特殊行
+        this.continuousChargeData = null; // 持续回费设置
         
         // 分页相关状态
         this.currentPage = 1;    // 当前页码
@@ -168,15 +169,7 @@ class DataManager {
                 };
                 break;
 
-            case 'continuousCharge':
-                rule = {
-                    ...baseRule,
-                    shakeTime: parseFloat(ruleData.shakeTime) || 0,
-                    recoveryRate: parseFloat(ruleData.recoveryRate) || 0,
-                    // 统一使用targetCharacterIds数组
-                    targetCharacterIds: ruleData.targetCharacterIds || []
-                };
-                break;
+
             case 'costChange':
                 rule = {
                     ...baseRule,
@@ -223,15 +216,7 @@ class DataManager {
                     };
                     break;
 
-                case 'continuousCharge':
-                    updatedRule = {
-                        ...updatedRule,
-                        shakeTime: parseFloat(ruleData.shakeTime) || 0,
-                        recoveryRate: parseFloat(ruleData.recoveryRate) || 0,
-                        // 统一使用targetCharacterIds数组
-                        targetCharacterIds: ruleData.targetCharacterIds || []
-                    };
-                    break;
+
                 case 'costChange':
                     updatedRule = {
                         ...updatedRule,
@@ -334,9 +319,9 @@ class DataManager {
     getDataItems() {
         let items = [...this.dataItems];
         
-        // 如果需要隐藏特殊行，过滤掉action为"回费"的数据项
+        // 如果需要隐藏特殊行，过滤掉action为"回费"或"减费"的数据项
         if (this.hideSpecialRows) {
-            items = items.filter(item => item.action !== '回费');
+            items = items.filter(item => item.action !== '回费' && item.action !== '减费');
         }
         
         return items;
@@ -383,7 +368,7 @@ class DataManager {
     getTotalPages() {
         let items = this.dataItems;
         if (this.hideSpecialRows) {
-            items = items.filter(item => item.action !== '回费');
+            items = items.filter(item => item.action !== '回费' && item.action !== '减费');
         }
         return Math.ceil(items.length / this.pageSize);
     }

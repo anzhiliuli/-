@@ -128,8 +128,8 @@ class DataTable {
             row.dataset.id = item.id;
             row.classList.add('data-row');
             
-            // 为回费类型的特殊行应用特殊样式
-            if (item.action === '回费') {
+            // 为特殊行（回费或减费类型）应用特殊样式
+            if (item.action === '回费' || item.action === '减费') {
                 row.classList.add('bg-white', 'border-2', 'border-blue-400', 'font-medium', 'shadow-sm');
             }
 
@@ -167,8 +167,8 @@ class DataTable {
                         // 设置现代化的按钮样式
                         btn.className = `p-2 rounded-full hover:bg-blue-100 text-blue-600 transition-colors duration-200 ${action.className || ''}`;
                         
-                        // 对于特殊行（回费类型），只显示删除按钮，隐藏编辑按钮
-                        if (item.action === '回费' && action.className?.includes('edit')) {
+                        // 对于特殊行（回费或减费类型），只显示删除按钮，隐藏编辑按钮
+                        if ((item.action === '回费' || item.action === '减费') && action.className?.includes('edit')) {
                             return; // 跳过编辑按钮，forEach中用return代替continue
                         }
                         

@@ -150,14 +150,6 @@ class UIRenderer {
                             <div class="mb-1"><strong>回费数值:</strong> ${rule.chargeValue}</div>
                         `;
                         break;
-                    case 'continuousCharge':
-                        ruleTypeText = '持续回费';
-                        targetText = ''; // 持续回费不需要显示目标角色
-                        paramsHTML = `
-                            <div class="mb-1"><strong>后摇时间:</strong> ${rule.shakeTime}s</div>
-                            <div class="mb-1"><strong>回复速度:</strong> ${rule.recoveryRate}</div>
-                        `;
-                        break;
                     case 'costChange':
                         ruleTypeText = '更改扣除';
                         // 查找对应的触发行数据
@@ -215,15 +207,13 @@ class UIRenderer {
                                 <h3 class="text-lg font-semibold text-gray-800">${ruleTypeText}</h3>
                                 <p class="text-sm text-gray-500 mt-1">
                                     ${rule.type === 'costChange' ? 
-                                        `<strong>触发时间:</strong> ${triggerTime}` : 
-                                        rule.type === 'costReduction' ?
-                                        `<strong>触发时间:</strong> ${triggerTime} | <strong>目标角色:</strong> ${targetText}` : 
-                                        rule.type === 'continuousCharge' ?
-                                        `<strong>触发角色:</strong> ${sourceCharacterText || '-'}` :
-                                        rule.type === 'chargeIncrease' ?
-                                        `<strong>作用范围:</strong> ${targetText}` :
-                                        `<strong>触发角色:</strong> ${sourceCharacterText || '-'} | <strong>目标角色:</strong> ${targetText}`
-                                    }
+                                            `<strong>触发时间:</strong> ${triggerTime}` : 
+                                            rule.type === 'costReduction' ?
+                                            `<strong>触发时间:</strong> ${triggerTime} | <strong>目标角色:</strong> ${targetText}` : 
+                                            rule.type === 'chargeIncrease' ?
+                                            `<strong>作用范围:</strong> ${targetText}` :
+                                            `<strong>触发角色:</strong> ${sourceCharacterText || '-'} | <strong>目标角色:</strong> ${targetText}`
+                                        }
                                 </p>
                             </div>
                             <div class="flex gap-2">
@@ -476,10 +466,6 @@ class UIRenderer {
                 <div class="status-item">
                     <span class="status-label">数据项数量:</span>
                     <span class="status-value">${items.length}</span>
-                </div>
-                <div class="status-item">
-                    <span class="status-label">当前费用:</span>
-                    <span class="status-value">${currentCost.toFixed(2)}/${totalCost}</span>
                 </div>
                 <div class="status-item">
                     <span class="status-label">总费用效率:</span>
@@ -1007,8 +993,8 @@ class UIRenderer {
         // 获取已应用的特殊技能（从数据项中提取）
         const dataItems = this.dataManager.getAllDataItems();
         
-        // 查找所有action为"回费"的数据项，这些是已应用的特殊技能
-        const appliedSkills = dataItems.filter(item => item.action === '回费');
+        // 查找所有action为"回费"或"减费"的数据项，这些是已应用的特殊技能
+        const appliedSkills = dataItems.filter(item => item.action === '回费' || item.action === '减费');
         
         // 获取角色列表
         const characters = this.dataManager.getCharacters();
@@ -1253,15 +1239,23 @@ class UIRenderer {
                     const character = characters.find(c => c.name === skill.name);
                     if (character) {
                         // 创建特殊数据项
+                        let action = '特殊技能'; // 默认动作
+                        // 根据角色设置不同的动作
+                        if (skill.name === '瞬' || skill.id === '1') {
+                            action = '回费'; // 瞬卡片的动作为回费
+                        } else if (skill.name === '水白' || skill.id === '2') {
+                            action = '减费'; // 水白卡片的动作为减费
+                        }
+                        
                         const specialItem = {
                             id: `special_${Date.now()}`,
                             characterId: character.id,
-                            action: '回费', // 瞬卡片的动作为回费
+                            action: action, // 根据角色设置不同的动作
                             time: seconds,
                             cost: 0, // 触发费用根据入场时间自动计算，这里先设为0，后续会被calculator重新计算
                             timeInterval: 0, // 时间间隔会被calculator重新计算
                             costDeduction: 0, // 费用扣除为0，因为是被动技能
-                            remainingCost: 0 // 剩余费用会被calculator重新计算，加上3.8c
+                            remainingCost: 0 // 剩余费用会被calculator重新计算
                         };
                         
                         // 添加数据项到数据管理器
