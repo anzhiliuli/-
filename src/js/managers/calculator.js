@@ -44,38 +44,60 @@ class Calculator {
     }
     
     // 应用关联规则费用变化
-    applyRuleCostChanges(characterId, baseCost, itemId = null, costReductionRules = null, costChangeRules = null) {
+    applyRuleCostChanges(characterId, baseCost, itemId = null, costReductionRules = null, costChangeRules = null, useCount = 1) {
         // 如果传入了预筛选的规则，则使用它们，否则获取所有规则
         const rules = this.dataManager.getRules();
         const reductionRules = costReductionRules || rules.filter(rule => rule.type === 'costReduction');
         const changeRules = costChangeRules || rules.filter(rule => rule.type === 'costChange');
         
         let finalCost = baseCost;
+        let reductionValue = 0;
+        let matchedRule = null;
         
-        // 先应用所有减费规则
-        reductionRules.forEach(rule => {
+        // 应用水白的第一次使用减费效果（初始默认值）
+        const character = this.dataManager.getCharacterById(characterId);
+        const hasSuibai = this.dataManager.getCharacters().some(char => char.name === '水白');
+        if (hasSuibai && character && character.name !== '水白' && useCount === 1) {
+            const suibaiReductionKey = `suibai_reduction_${characterId}`;
+            if (!this.ruleCounters[suibaiReductionKey]) {
+                reductionValue = 1; // 水白的减费值
+            }
+        }
+        
+        // 找到最后一个匹配的减费规则（后添加的规则优先级更高）
+        for (let i = reductionRules.length - 1; i >= 0; i--) {
+            const rule = reductionRules[i];
             // 减费效果：统一检查规则是否作用于当前角色
             const isRuleApplied = Array.isArray(rule.targetCharacterIds) && rule.targetCharacterIds.includes(characterId);
             if (isRuleApplied) {
-                // 检查规则计数器，确保生效次数未用完
-                const ruleKey = `costReduction_${rule.id}`;
-                // 初始化计数器（如果不存在）
-                if (!this.ruleCounters[ruleKey]) {
-                    this.ruleCounters[ruleKey] = 0;
-                }
-                
                 // 检查当前数据项是否在目标行之后（不包括当前目标行）
-            // 只有当当前itemId大于规则的characterId（目标行ID）时，才应用减费效果
-            const isAfterTargetRow = !rule.characterId || itemId > rule.characterId;
-            
-            // 如果生效次数未用完且在目标行之后，应用减费
-            if (this.ruleCounters[ruleKey] < rule.effectCount && isAfterTargetRow) {
-                    finalCost -= rule.reductionValue;
-                    // 增加计数器
-                    this.ruleCounters[ruleKey]++;
+                const isAfterTargetRow = !rule.characterId || itemId > rule.characterId;
+                if (isAfterTargetRow) {
+                    matchedRule = rule;
+                    break; // 找到最后一个匹配的规则，跳出循环
                 }
             }
-        });
+        }
+        
+        // 如果找到匹配的规则，应用该规则的减费值
+        if (matchedRule) {
+            // 检查规则计数器，确保生效次数未用完
+            const ruleKey = `costReduction_${matchedRule.id}`;
+            // 初始化计数器（如果不存在）
+            if (!this.ruleCounters[ruleKey]) {
+                this.ruleCounters[ruleKey] = 0;
+            }
+            
+            // 如果生效次数未用完，应用减费
+            if (this.ruleCounters[ruleKey] < matchedRule.effectCount) {
+                reductionValue = matchedRule.reductionValue; // 应用最后一个匹配规则的减费值
+                // 增加计数器
+                this.ruleCounters[ruleKey]++;
+            }
+        }
+        
+        // 应用最终的减费值
+        finalCost -= reductionValue;
         
         // 然后应用费用更改规则（如果有）
         changeRules.forEach(rule => {
@@ -183,7 +205,17 @@ class Calculator {
         // 对于没有costChange规则的数据项，使用角色的技能费用作为基础费用
         // 对于有costChange规则的数据项，会在applyRuleCostChanges中被覆盖
         const baseCost = character.skillCost;
-        const finalCost = this.applyRuleCostChanges(item.characterId, baseCost, item.id);
+        
+        // 跟踪角色的技能使用次数
+        const useCountKey = `useCount_${item.characterId}`;
+        if (!this.ruleCounters[useCountKey]) {
+            this.ruleCounters[useCountKey] = 0;
+        }
+        this.ruleCounters[useCountKey]++;
+        const useCount = this.ruleCounters[useCountKey];
+        
+        // 传递使用次数给applyRuleCostChanges
+        const finalCost = this.applyRuleCostChanges(item.characterId, baseCost, item.id, null, null, useCount);
         
         // 确保费用足够
         costDeduction = Math.min(newCost, finalCost);
@@ -224,6 +256,9 @@ class Calculator {
         const continuousChargeRules = rules.filter(rule => rule.type === 'continuousCharge');
         const costReductionRules = rules.filter(rule => rule.type === 'costReduction');
         const costChangeRules = rules.filter(rule => rule.type === 'costChange');
+        
+        // 跟踪每个角色的技能使用次数
+        const useCounts = {};
         
         // 重新计算每个数据项的费用和时间间隔
         items.forEach((item, index) => {
@@ -313,8 +348,16 @@ class Calculator {
                 // 对于没有costChange规则的数据项，使用角色的技能费用作为基础费用
                 // 对于有costChange规则的数据项，会在applyRuleCostChanges中被覆盖
                 const baseCost = character.skillCost;
-                // 传入预筛选的规则，避免在方法内部重复筛选
-                const finalCost = this.applyRuleCostChanges(item.characterId, baseCost, item.id, costReductionRules, costChangeRules);
+                
+                // 跟踪角色的技能使用次数
+                if (!useCounts[item.characterId]) {
+                    useCounts[item.characterId] = 0;
+                }
+                useCounts[item.characterId]++;
+                const useCount = useCounts[item.characterId];
+                
+                // 传入预筛选的规则，避免在方法内部重复筛选，并传递使用次数
+                const finalCost = this.applyRuleCostChanges(item.characterId, baseCost, item.id, costReductionRules, costChangeRules, useCount);
                 
                 // 确保费用足够
                 costDeduction = Math.min(newCost, finalCost);
@@ -418,7 +461,7 @@ class Calculator {
                 
                 // 计算技能费用
                 const skillCost = this.calculateSkillCost(character, useCounts[skillInfo.characterId]);
-                const finalCost = this.applyRuleCostChanges(skillInfo.characterId, skillCost);
+                const finalCost = this.applyRuleCostChanges(skillInfo.characterId, skillCost, null, null, null, useCounts[skillInfo.characterId]);
                 
                 // 如果费用足够，释放技能
                 if (currentCost >= finalCost) {
@@ -447,8 +490,13 @@ class Calculator {
     canPerformAction(character, action, currentCost) {
         if (action !== '技能') return true;
         
-        const skillCost = this.calculateSkillCost(character);
-        const finalCost = this.applyRuleCostChanges(character.id, skillCost);
+        // 预测下一次使用次数
+        const useCountKey = `useCount_${character.id}`;
+        const currentUseCount = this.ruleCounters[useCountKey] || 0;
+        const nextUseCount = currentUseCount + 1;
+        
+        const skillCost = this.calculateSkillCost(character, nextUseCount);
+        const finalCost = this.applyRuleCostChanges(character.id, skillCost, null, null, null, nextUseCount);
         
         return currentCost >= finalCost;
     }
