@@ -566,15 +566,20 @@ class EventListeners {
         
 
         
-        // 显示时间线按钮
+        // 显示时间线按钮 - 添加调试信息
         const timelineViewBtn = document.getElementById('timelineViewBtn');
+        console.log('时间轴视图按钮:', timelineViewBtn);
         if (timelineViewBtn) {
+            console.log('绑定时间轴视图按钮点击事件');
             timelineViewBtn.addEventListener('click', () => {
+                console.log('点击了时间轴视图按钮');
                 // 显示时间轴模态框
                 this.modalManager.showModal('timelineModal');
                 // 初始化时间轴视图
                 this.uiRenderer.initTimelineView();
             });
+        } else {
+            console.error('找不到时间轴视图按钮');
         }
         
         // 持续回费功能按钮
