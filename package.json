@@ -5,8 +5,8 @@
   "main": "src/js/index.js",
   "type": "module",
   "scripts": {
-    "serve": "npx http-server -p 8000 -o",
-    "dev": "npx http-server -p 8000 -o -c-1",
+    "serve": "npx http-server -p 8080 -o",
+    "dev": "npx http-server -p 8080 -o -c-1",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [

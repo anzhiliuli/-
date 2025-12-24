@@ -13,8 +13,8 @@
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
     <!-- 自定义样式 -->
-    <link rel="stylesheet" href="./src/css/main.css">
-    <link rel="stylesheet" href="./src/css/rule-styles.css">
+    <link rel="stylesheet" href="./src/css/main.css?v=1.0.2">
+    <link rel="stylesheet" href="./src/css/rule-styles.css?v=1.0.2">
     <!-- 下拉菜单组件将通过模块加载 -->
     
     <!-- 导航栏滚动效果脚本 -->
@@ -100,6 +100,63 @@
         /* 初始化弹窗样式 */
         .modal-backdrop.show {
             display: flex;
+        }
+        
+        /* 内联玻璃态效果样式，确保在GitHub Pages上生效 */
+        .modal-backdrop .modal-content {
+            /* 玻璃态核心样式 - 添加浏览器前缀以确保兼容性 */
+            background: rgba(249, 250, 251, 0.75) !important;
+            background-clip: padding-box !important;
+            -webkit-backdrop-filter: blur(16px) isolate;
+            backdrop-filter: blur(16px) isolate;
+            /* 质感装饰 */
+            border: 1px solid rgba(255, 255, 255, 0.3) !important;
+            border-radius: 16px !important;
+            box-shadow: 
+                0 2px 8px rgba(0, 0, 0, 0.05),
+                0 12px 32px rgba(0, 0, 0, 0.08),
+                inset 0 1px 0 rgba(255, 255, 255, 0.5)
+                !important;
+            /* 渐变背景增强玻璃质感 */
+            background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(240, 249, 255, 0.6) 100%) !important;
+            /* 确保元素层级正确 */
+            position: relative !important;
+            z-index: 1050 !important;
+        }
+        
+        .modal-backdrop .modal-header {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.4) !important;
+            padding-bottom: 1rem !important;
+            margin-bottom: 1.5rem !important;
+        }
+        
+        .modal-backdrop .modal-footer {
+            border-top: 1px solid rgba(255, 255, 255, 0.4) !important;
+            padding-top: 1rem !important;
+            margin-top: 1.5rem !important;
+        }
+        
+        /* 角色预设弹窗玻璃态效果 */
+        #characterPresetsModal .modal-content {
+            /* 玻璃态核心样式 - 优化后 */
+            background: rgba(249, 250, 251, 0.7) !important;
+            backdrop-filter: blur(16px) isolate !important;
+            /* 质感装饰 */
+            border: 1px solid rgba(255, 255, 255, 0.3) !important;
+            border-radius: 16px !important;
+            box-shadow: 
+                0 2px 8px rgba(0, 0, 0, 0.05),
+                0 12px 32px rgba(0, 0, 0, 0.08),
+                inset 0 1px 0 rgba(255, 255, 255, 0.5)
+                !important;
+        }
+        
+        #characterPresetsModal #presetsList .flex {
+            /* 列表项玻璃态效果 */
+            background: rgba(255, 255, 255, 0.5) !important;
+            backdrop-filter: blur(12px) isolate !important;
+            border: 1px solid rgba(255, 255, 255, 0.3) !important;
+            border-radius: 12px !important;
         }
     </style>
 
