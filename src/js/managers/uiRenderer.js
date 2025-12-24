@@ -665,11 +665,31 @@ class UIRenderer {
         // 获取最新的角色数据
         const characters = this.dataManager.getCharacters();
         
-        // 调试Chart对象结构
-        console.log('Chart对象:', window.Chart);
+        // 确保Chart.js已加载
+        if (!window.Chart) {
+            console.error('Chart.js库未加载');
+            // 隐藏加载动画
+            if (chartLoading) {
+                chartLoading.classList.add('hidden');
+            }
+            return;
+        }
         
-        // 创建新的Chart.js图表，适配Chart.js 4.x的UMD导出方式
-        const ChartConstructor = typeof window.Chart === 'function' ? window.Chart : window.Chart.default;
+        // 创建新的Chart.js图表，适配不同的导出方式
+        let ChartConstructor;
+        if (typeof window.Chart === 'function') {
+            ChartConstructor = window.Chart;
+        } else if (window.Chart && typeof window.Chart.default === 'function') {
+            ChartConstructor = window.Chart.default;
+        } else {
+            console.error('无法获取Chart构造函数');
+            // 隐藏加载动画
+            if (chartLoading) {
+                chartLoading.classList.add('hidden');
+            }
+            return;
+        }
+        
         window.costChart = new ChartConstructor(ctx, {
             type: chartType,
             data: {
