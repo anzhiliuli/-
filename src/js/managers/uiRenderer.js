@@ -665,8 +665,12 @@ class UIRenderer {
         // 获取最新的角色数据
         const characters = this.dataManager.getCharacters();
         
-        // 创建新的Chart.js图表
-        window.costChart = new Chart(ctx, {
+        // 调试Chart对象结构
+        console.log('Chart对象:', window.Chart);
+        
+        // 创建新的Chart.js图表，适配Chart.js 4.x的UMD导出方式
+        const ChartConstructor = typeof window.Chart === 'function' ? window.Chart : window.Chart.default;
+        window.costChart = new ChartConstructor(ctx, {
             type: chartType,
             data: {
                 labels: labels,
@@ -717,7 +721,7 @@ class UIRenderer {
                 ]
             },
             options: {
-                responsive: false,
+                responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
                     legend: {

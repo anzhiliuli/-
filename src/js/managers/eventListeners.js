@@ -567,9 +567,9 @@ class EventListeners {
 
         
         // 显示时间线按钮
-        const showTimelineBtn = document.getElementById('showTimeline');
-        if (showTimelineBtn) {
-            showTimelineBtn.addEventListener('click', () => {
+        const timelineViewBtn = document.getElementById('timelineViewBtn');
+        if (timelineViewBtn) {
+            timelineViewBtn.addEventListener('click', () => {
                 // 显示时间轴模态框
                 this.modalManager.showModal('timelineModal');
                 // 初始化时间轴视图
