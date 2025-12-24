@@ -725,14 +725,14 @@
 }
 
 .modal-content {
-  background-color: var(--card-bg) !important;
+  background-color: var(--card-bg);
   border: 1px solid var(--card-border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
   padding: 1.5rem;
   max-height: 90vh;
   overflow-y: auto;
-  opacity: 1 !important;
+  opacity: 1;
   animation: slideIn 0.2s ease-out;
 }
 

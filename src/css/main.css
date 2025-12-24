@@ -1007,8 +1007,10 @@ pre code {
 
 /* 通用玻璃态模态框样式 */
 .modal-backdrop .modal-content {
-    /* 玻璃态核心样式 */
+    /* 玻璃态核心样式 - 添加浏览器前缀以确保兼容性 */
     background: rgba(249, 250, 251, 0.75) !important;
+    background-clip: padding-box !important;
+    -webkit-backdrop-filter: blur(16px) isolate;
     backdrop-filter: blur(16px) isolate;
     /* 质感装饰 */
     border: 1px solid rgba(255, 255, 255, 0.3) !important;
@@ -1022,6 +1024,9 @@ pre code {
     background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(240, 249, 255, 0.6) 100%) !important;
     /* 动画效果 */
     animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    /* 确保元素层级正确 */
+    position: relative !important;
+    z-index: 1050 !important;
 }
 
 .modal-backdrop .modal-header {
