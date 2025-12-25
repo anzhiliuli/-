@@ -10,6 +10,13 @@ class DataManager {
         this.hideSpecialRows = false; // 是否隐藏特殊行
         this.continuousChargeData = null; // 持续回费设置
         
+        // 新增：导出信息字段
+        this.exportInfo = {
+            positions: ["", "", "", ""], // 角色站位（4个）
+            initialSkills: ["", "", ""], // 初始技能（3个）
+            videoAxisLink: "" // 视频轴链接
+        };
+        
         // 分页相关状态
         this.currentPage = 1;    // 当前页码
         this.pageSize = 10;      // 每页显示行数
@@ -484,6 +491,11 @@ class DataManager {
             totalCost: this.totalCost,
             nextId: this.nextId,
             initializationDuration: this.initializationDuration,
+            hideSpecialRows: this.hideSpecialRows,
+            continuousChargeData: this.continuousChargeData,
+            currentPage: this.currentPage,
+            pageSize: this.pageSize,
+            exportInfo: this.exportInfo, // 新增：导出信息
             exportedAt: new Date().toISOString(),
             version: '1.0.0'
         };
@@ -504,6 +516,36 @@ class DataManager {
             if (data.continuousChargeData !== undefined) this.continuousChargeData = data.continuousChargeData;
             if (data.currentPage !== undefined) this.currentPage = data.currentPage;
             if (data.pageSize !== undefined) this.pageSize = data.pageSize;
+            if (data.exportInfo !== undefined) {
+                // 检查exportInfo是否有效（至少有一个字段有值）
+                const hasValidInfo = 
+                    (data.exportInfo.positions && data.exportInfo.positions.some(pos => pos)) ||
+                    (data.exportInfo.initialSkills && data.exportInfo.initialSkills.some(skill => skill)) ||
+                    data.exportInfo.videoAxisLink;
+                
+                if (hasValidInfo) {
+                    // 有有效信息时，使用导入的数据
+                    this.exportInfo = {
+                        positions: data.exportInfo.positions || ["", "", "", ""],
+                        initialSkills: data.exportInfo.initialSkills || ["", "", ""],
+                        videoAxisLink: data.exportInfo.videoAxisLink || ""
+                    };
+                } else {
+                    // 即使有exportInfo，但没有有效信息，也清空现有的信息
+                    this.exportInfo = {
+                        positions: ["", "", "", ""],
+                        initialSkills: ["", "", ""],
+                        videoAxisLink: ""
+                    };
+                }
+            } else {
+                // 如果导入的数据没有exportInfo，清空现有的信息
+                this.exportInfo = {
+                    positions: ["", "", "", ""],
+                    initialSkills: ["", "", ""],
+                    videoAxisLink: ""
+                };
+            }
             return true;
         } catch (error) {
             console.error('导入数据失败:', error);

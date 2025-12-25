@@ -443,8 +443,11 @@
                         <button id="toggleSpecialRowsBtn" class="text-sm px-2 py-1 rounded bg-gray-100 hover:bg-gray-200 transition-colors duration-200">
                             <i class="fas fa-eye-slash"></i> 隐藏特殊行
                         </button>
+                        <!-- 角色站位信息 -->
+                        <span id="positionsInfo" class="text-sm text-gray-600"></span>
                     </div>
-
+                    <!-- 视频轴按钮 -->
+                    <div id="videoAxisBtnContainer"></div>
                 </div>
                 <div class="overflow-x-auto">
                     <table id="dataItemsTable" class="w-full">
@@ -514,6 +517,138 @@
         </section>
     </main>
 
+
+    <!-- 导入导出选择模态框 -->
+    <div id="importExportModal" class="modal-backdrop modal fade hidden" tabindex="-1" aria-hidden="true">
+        <div class="modal-content glassmorphism">
+            <div class="modal-header">
+                <h5 class="modal-title" id="importExportModalTitle">导入/导出数据</h5>
+                <button type="button" class="close close-modal-btn" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="space-y-4">
+                    <div id="exportOptions" class="hidden">
+                            <h6 class="font-medium mb-2">选择导出方式</h6>
+                            
+                            <!-- 导出信息配置 -->
+                            <div id="exportConfigInfo" class="bg-gray-50 p-4 rounded-lg mb-4 hidden">
+                                <h6 class="font-medium mb-3">配置导出信息（非必填）</h6>
+                                
+                                <!-- 角色站位 -->
+                                <div class="mb-3">
+                                    <label class="block text-sm font-medium mb-2">角色站位</label>
+                                    <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                                        <div>
+                                            <label class="block text-xs text-gray-600 mb-1">站位1</label>
+                                            <select id="position1" class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                                <option value="">请选择角色</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs text-gray-600 mb-1">站位2</label>
+                                            <select id="position2" class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                                <option value="">请选择角色</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs text-gray-600 mb-1">站位3</label>
+                                            <select id="position3" class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                                <option value="">请选择角色</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs text-gray-600 mb-1">站位4</label>
+                                            <select id="position4" class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                                <option value="">请选择角色</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- 初始技能 -->
+                                <div class="mb-3">
+                                    <label class="block text-sm font-medium mb-2">初始技能</label>
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+                                        <div>
+                                            <label class="block text-xs text-gray-600 mb-1">技能1</label>
+                                            <select id="initialSkill1" class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                                <option value="">请选择角色</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs text-gray-600 mb-1">技能2</label>
+                                            <select id="initialSkill2" class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                                <option value="">请选择角色</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs text-gray-600 mb-1">技能3</label>
+                                            <select id="initialSkill3" class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                                <option value="">请选择角色</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- 视频轴链接 -->
+                                <div class="mb-0">
+                                    <label for="videoAxisLink" class="block text-sm font-medium mb-2">视频轴链接</label>
+                                    <input type="url" id="videoAxisLink" class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="请输入视频轴链接（可选）">
+                                </div>
+                            </div>
+                            
+                            <!-- 导出按钮 -->
+                            <div class="flex flex-wrap gap-3">
+                                <button id="exportByFileBtn" class="btn btn-secondary flex items-center justify-center gap-2 p-3 rounded-lg hover:bg-opacity-80 transition">
+                                    <i class="fas fa-file-export text-lg"></i>
+                                    <span>导出为文件</span>
+                                </button>
+                                <button id="exportByShareIdBtn" class="btn btn-secondary flex items-center justify-center gap-2 p-3 rounded-lg hover:bg-opacity-80 transition">
+                                    <i class="fas fa-share-nodes text-lg"></i>
+                                    <span>生成识别码</span>
+                                </button>
+                                <button id="toggleExportConfigBtn" class="btn btn-outline flex items-center justify-center gap-2 p-3 rounded-lg hover:bg-opacity-80 transition">
+                                    <i class="fas fa-plus text-lg"></i>
+                                    <span>导出更多信息</span>
+                                </button>
+                            </div>
+                            
+                            <!-- 识别码显示区域 -->
+                            <div id="shareIdDisplayGroup" class="hidden mt-4">
+                                <label class="block text-sm font-medium mb-2">生成的识别码</label>
+                                <div class="flex gap-2 items-center">
+                                    <input type="text" id="generatedShareId" class="flex-grow p-2 border border-gray-300 rounded-lg bg-gray-50 focus:outline-none" placeholder="点击生成识别码" readonly>
+                                    <button id="copyShareIdBtn" class="btn btn-secondary px-4 py-2 rounded-lg hover:bg-opacity-80 transition whitespace-nowrap">
+                                    <span>复制</span>
+                                </button>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-1">点击识别码或复制按钮可复制到剪贴板</p>
+                            </div>
+                        </div>
+                        <div id="importOptions" class="hidden">
+                            <h6 class="font-medium mb-2">选择导入方式</h6>
+                            <div class="grid grid-cols-1 gap-3 mb-4">
+                                <button id="importByFileBtn" class="btn btn-secondary flex items-center justify-center gap-2 p-3 rounded-lg hover:bg-opacity-80 transition">
+                                    <i class="fas fa-file-import text-lg"></i>
+                                    <span>从文件导入</span>
+                                </button>
+                            </div>
+                        <div id="shareIdInputGroup" class="mt-0">
+                            <label for="shareIdInput" class="block text-sm font-medium mb-2">从识别码导入</label>
+                            <div class="flex gap-2 items-center">
+                                <input type="text" id="shareIdInput" class="flex-grow p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="请输入识别码">
+                                <button id="confirmShareIdBtn" class="btn btn-primary px-4 py-2 rounded-lg hover:bg-opacity-80 transition whitespace-nowrap">
+                                    确认
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- 页脚 -->
     <footer class="bg-white shadow-inner py-4">

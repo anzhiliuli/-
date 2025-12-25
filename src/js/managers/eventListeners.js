@@ -259,6 +259,20 @@ class EventListeners {
                 
                 // 清空现有数据项并设置初始化状态
                 this.dataManager.clearDataItems();
+                
+                // 清空角色关联规则
+                this.dataManager.rules = [];
+                
+                // 清空持续回费设置
+                this.dataManager.setContinuousChargeData(null);
+                
+                // 重置导出信息
+                this.dataManager.exportInfo = {
+                    positions: ["", "", "", ""],
+                    initialSkills: ["", "", ""],
+                    videoAxisLink: ""
+                };
+                
                 this.app.setDataTableInitialized(true);
                 
                 // 设置初始化时间
@@ -313,7 +327,7 @@ class EventListeners {
         // 导出数据按钮
         const exportDataBtn = document.getElementById('exportBtn');
         if (exportDataBtn) {
-            exportDataBtn.addEventListener('click', () => this.exportData());
+            exportDataBtn.addEventListener('click', () => this.showImportExportModal('export'));
         }
 
         // 导入数据按钮
@@ -628,6 +642,38 @@ class EventListeners {
             refreshTableBtn.addEventListener('click', () => {
                 this.uiRenderer.refreshAll();
                 this.modalManager.showToast('表格已刷新', 'success');
+            });
+        }
+        
+        // 导出更多信息按钮
+        const toggleExportConfigBtn = document.getElementById('toggleExportConfigBtn');
+        if (toggleExportConfigBtn) {
+            toggleExportConfigBtn.addEventListener('click', () => {
+                const exportConfigInfo = document.getElementById('exportConfigInfo');
+                const icon = toggleExportConfigBtn.querySelector('i.fas');
+                const textSpan = toggleExportConfigBtn.querySelector('span');
+                
+                if (exportConfigInfo.classList.contains('hidden')) {
+                    // 显示配置信息
+                    exportConfigInfo.classList.remove('hidden');
+                    if (icon) {
+                        icon.classList.remove('fa-plus');
+                        icon.classList.add('fa-minus');
+                    }
+                    if (textSpan) {
+                        textSpan.textContent = '隐藏导出信息';
+                    }
+                } else {
+                    // 隐藏配置信息
+                    exportConfigInfo.classList.add('hidden');
+                    if (icon) {
+                        icon.classList.remove('fa-minus');
+                        icon.classList.add('fa-plus');
+                    }
+                    if (textSpan) {
+                        textSpan.textContent = '导出更多信息';
+                    }
+                }
             });
         }
         
@@ -2277,8 +2323,253 @@ class EventListeners {
         );
     }
 
+    // 显示导入导出选择模态框
+    showImportExportModal(type) {
+        // 设置模态框标题和显示对应的选项
+        const modal = document.getElementById('importExportModal');
+        const title = document.getElementById('importExportModalTitle');
+        const exportOptions = document.getElementById('exportOptions');
+        const importOptions = document.getElementById('importOptions');
+        
+        if (type === 'export') {
+            title.textContent = '导出数据';
+            exportOptions.classList.remove('hidden');
+            importOptions.classList.add('hidden');
+            
+            // 更新角色下拉菜单选项
+            this.updateCharacterSelectsInExportModal();
+        } else {
+            title.textContent = '导入数据';
+            exportOptions.classList.add('hidden');
+            importOptions.classList.remove('hidden');
+        }
+        
+        // 显示模态框
+        this.modalManager.showModal('importExportModal');
+        
+        // 绑定模态框内按钮事件
+        this.bindImportExportModalEvents();
+    }
+    
+    // 更新导出模态框中的角色下拉菜单选项
+    updateCharacterSelectsInExportModal() {
+        // 获取所有角色名称
+        const characters = this.dataManager.getCharacters();
+        const characterNames = characters.map(char => char.name);
+        
+        // 生成下拉选项HTML
+        const optionsHTML = `<option value="">请选择角色</option>${characterNames.map(name => `<option value="${name}">${name}</option>`).join('')}`;
+        
+        // 更新所有角色站位下拉菜单
+        for (let i = 1; i <= 4; i++) {
+            const select = document.getElementById(`position${i}`);
+            if (select) {
+                select.innerHTML = optionsHTML;
+            }
+        }
+        
+        // 更新所有初始技能下拉菜单
+        for (let i = 1; i <= 3; i++) {
+            const select = document.getElementById(`initialSkill${i}`);
+            if (select) {
+                select.innerHTML = optionsHTML;
+            }
+        }
+        
+        // 添加角色站位唯一性检查
+        this.addPositionUniquenessCheck();
+        
+        // 添加初始技能唯一性检查
+        this.addInitialSkillUniquenessCheck();
+        
+        // 添加视频轴链接解析功能
+        this.addVideoAxisLinkParser();
+    }
+    
+    // 添加角色站位唯一性检查
+    addPositionUniquenessCheck() {
+        const positionSelects = Array.from({length: 4}, (_, i) => document.getElementById(`position${i + 1}`)).filter(Boolean);
+        
+        const updatePositionOptions = () => {
+            // 获取所有已选择的角色
+            const selectedPositions = positionSelects.map(select => select.value).filter(Boolean);
+            
+            // 更新每个选择框的选项
+            positionSelects.forEach(select => {
+                const currentValue = select.value;
+                // 获取所有角色名称
+                const characters = this.dataManager.getCharacters();
+                const characterNames = characters.map(char => char.name);
+                
+                // 生成下拉选项HTML，排除其他选择框已选择的角色
+                let optionsHTML = '<option value="">请选择角色</option>';
+                characterNames.forEach(name => {
+                    // 如果该角色已被其他选择框选中，且不是当前选择框的值，则禁用
+                    const isSelectedElsewhere = selectedPositions.includes(name) && name !== currentValue;
+                    optionsHTML += `<option value="${name}" ${isSelectedElsewhere ? 'disabled' : ''}>${name}${isSelectedElsewhere ? ' (已选择)' : ''}</option>`;
+                });
+                
+                select.innerHTML = optionsHTML;
+                // 恢复当前选择框的值
+                select.value = currentValue;
+            });
+        };
+        
+        // 为每个选择框添加change事件监听器
+        positionSelects.forEach(select => {
+            select.addEventListener('change', updatePositionOptions);
+        });
+    }
+    
+    // 添加初始技能唯一性检查
+    addInitialSkillUniquenessCheck() {
+        const skillSelects = Array.from({length: 3}, (_, i) => document.getElementById(`initialSkill${i + 1}`)).filter(Boolean);
+        
+        const updateSkillOptions = () => {
+            // 获取所有已选择的角色
+            const selectedSkills = skillSelects.map(select => select.value).filter(Boolean);
+            
+            // 更新每个选择框的选项
+            skillSelects.forEach(select => {
+                const currentValue = select.value;
+                // 获取所有角色名称
+                const characters = this.dataManager.getCharacters();
+                const characterNames = characters.map(char => char.name);
+                
+                // 生成下拉选项HTML，排除其他选择框已选择的角色
+                let optionsHTML = '<option value="">请选择角色</option>';
+                characterNames.forEach(name => {
+                    // 如果该角色已被其他选择框选中，且不是当前选择框的值，则禁用
+                    const isSelectedElsewhere = selectedSkills.includes(name) && name !== currentValue;
+                    optionsHTML += `<option value="${name}" ${isSelectedElsewhere ? 'disabled' : ''}>${name}${isSelectedElsewhere ? ' (已选择)' : ''}</option>`;
+                });
+                
+                select.innerHTML = optionsHTML;
+                // 恢复当前选择框的值
+                select.value = currentValue;
+            });
+        };
+        
+        // 为每个选择框添加change事件监听器
+        skillSelects.forEach(select => {
+            select.addEventListener('change', updateSkillOptions);
+        });
+    }
+    
+    // 添加视频轴链接解析功能
+    addVideoAxisLinkParser() {
+        const videoAxisLinkInput = document.getElementById('videoAxisLink');
+        if (!videoAxisLinkInput) return;
+        
+        // 添加input事件监听器，自动解析链接
+        videoAxisLinkInput.addEventListener('input', (e) => {
+            const inputValue = e.target.value;
+            if (!inputValue) return;
+            
+            // 正则表达式匹配B站视频链接
+            const bilibiliRegex = /(https?:\/\/(?:www\.)?bilibili\.com\/video\/[a-zA-Z0-9]+(?:\?[\w\-\.=&%]*))/g;
+            const matches = inputValue.match(bilibiliRegex);
+            
+            if (matches && matches.length > 0) {
+                // 如果找到链接，自动填充第一个匹配到的链接
+                e.target.value = matches[0];
+            }
+        });
+    }
+    
+    // 绑定导入导出模态框事件
+    bindImportExportModalEvents() {
+        // 导出为文件
+        const exportByFileBtn = document.getElementById('exportByFileBtn');
+        if (exportByFileBtn) {
+            exportByFileBtn.onclick = () => {
+                this.exportDataByFile();
+                this.modalManager.hideModal('importExportModal');
+            };
+        }
+        
+        // 生成识别码
+        const exportByShareIdBtn = document.getElementById('exportByShareIdBtn');
+        if (exportByShareIdBtn) {
+            exportByShareIdBtn.onclick = () => {
+                this.generateShareId();
+            };
+        }
+        
+        // 复制识别码
+        const copyShareIdBtn = document.getElementById('copyShareIdBtn');
+        if (copyShareIdBtn) {
+            copyShareIdBtn.onclick = () => {
+                this.copyShareId();
+            };
+        }
+        
+        // 点击识别码输入框也能复制
+        const generatedShareId = document.getElementById('generatedShareId');
+        if (generatedShareId) {
+            generatedShareId.onclick = () => {
+                this.copyShareId();
+            };
+        }
+        
+        // 从文件导入
+        const importByFileBtn = document.getElementById('importByFileBtn');
+        if (importByFileBtn) {
+            importByFileBtn.onclick = () => {
+                this.importDataByFile();
+                this.modalManager.hideModal('importExportModal');
+            };
+        }
+        
+        // 移除了从识别码导入按钮，识别码输入框现在默认显示
+        
+        // 确认识别码
+        const confirmShareIdBtn = document.getElementById('confirmShareIdBtn');
+        if (confirmShareIdBtn) {
+            confirmShareIdBtn.onclick = () => {
+                const shareId = document.getElementById('shareIdInput').value.trim();
+                if (shareId) {
+                    this.importDataByShareId(shareId);
+                    // 不立即关闭模态框，等待导入完成后由importDataByShareId方法处理
+                } else {
+                    this.modalManager.showToast('请输入有效的识别码', 'error');
+                }
+            };
+        }
+    }
+    
+    // 保存用户输入的导出信息
+    saveExportInfo() {
+        // 获取角色站位信息
+        const positions = [];
+        for (let i = 1; i <= 4; i++) {
+            const select = document.getElementById(`position${i}`);
+            positions.push(select ? select.value : '');
+        }
+        
+        // 获取初始技能信息
+        const initialSkills = [];
+        for (let i = 1; i <= 3; i++) {
+            const select = document.getElementById(`initialSkill${i}`);
+            initialSkills.push(select ? select.value : '');
+        }
+        
+        // 获取视频轴链接
+        const videoAxisLink = document.getElementById('videoAxisLink')?.value || '';
+        
+        // 保存到数据管理器
+        this.dataManager.exportInfo = {
+            positions,
+            initialSkills,
+            videoAxisLink
+        };
+    }
+    
     // 导出数据为JSON文件
-    exportData() {
+    exportDataByFile() {
+        // 保存用户输入的导出信息
+        this.saveExportInfo();
+        
         const data = this.dataManager.exportData();
         const dataStr = JSON.stringify(data, null, 2);
         const dataBlob = new Blob([dataStr], { type: 'application/json' });
@@ -2292,8 +2583,9 @@ class EventListeners {
         URL.revokeObjectURL(url);
         this.modalManager.showToast('数据导出成功', 'success');
     }
-
-    showImportDataModal() {
+    
+    // 从文件导入数据
+    importDataByFile() {
         // 直接触发文件选择
         const importFileInput = document.getElementById('importFileInput');
         if (importFileInput) {
@@ -2318,6 +2610,119 @@ class EventListeners {
             // 触发点击
             newFileInput.click();
         }
+    }
+    
+    // 生成识别码
+    async generateShareId() {
+        try {
+            // 显示加载指示器
+            this.modalManager.showLoadingIndicator('正在生成识别码...');
+            
+            // 保存用户输入的导出信息
+            this.saveExportInfo();
+            
+            // 获取要导出的数据
+            const data = this.dataManager.exportData();
+            
+            // 调用API生成识别码
+            const shareId = await AppUtils.api.generateShareId(data);
+            
+            // 隐藏加载指示器
+            this.modalManager.hideLoadingIndicator();
+            
+            // 显示识别码
+            const shareIdDisplayGroup = document.getElementById('shareIdDisplayGroup');
+            const generatedShareId = document.getElementById('generatedShareId');
+            
+            if (shareIdDisplayGroup && generatedShareId) {
+                generatedShareId.value = shareId;
+                shareIdDisplayGroup.classList.remove('hidden');
+                
+                // 滚动到识别码显示区域
+                shareIdDisplayGroup.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                
+                this.modalManager.showToast('识别码生成成功', 'success');
+            }
+        } catch (error) {
+            // 隐藏加载指示器
+            this.modalManager.hideLoadingIndicator();
+            
+            console.error('生成识别码失败:', error);
+            this.modalManager.showToast('生成识别码失败，请检查API密钥或网络连接', 'error');
+        }
+    }
+    
+    // 复制识别码到剪贴板
+    copyShareId() {
+        const generatedShareId = document.getElementById('generatedShareId');
+        if (generatedShareId && generatedShareId.value) {
+            generatedShareId.select();
+            generatedShareId.setSelectionRange(0, 99999); // 兼容移动端
+            
+            try {
+                document.execCommand('copy');
+                this.modalManager.showToast('识别码已复制到剪贴板', 'success');
+            } catch (err) {
+                // 降级方案
+                navigator.clipboard.writeText(generatedShareId.value)
+                    .then(() => {
+                        this.modalManager.showToast('识别码已复制到剪贴板', 'success');
+                    })
+                    .catch(() => {
+                        this.modalManager.showToast('复制失败，请手动复制', 'error');
+                    });
+            }
+        }
+    }
+    
+    // 从识别码导入数据
+    async importDataByShareId(shareId) {
+        try {
+            // 显示加载指示器
+            this.modalManager.showLoadingIndicator('正在从识别码导入数据...');
+            
+            // 调用API获取共享数据
+            const data = await AppUtils.api.getShareData(shareId);
+            
+            // 导入数据
+            const success = this.dataManager.importData(data);
+            
+            // 隐藏加载指示器
+            this.modalManager.hideLoadingIndicator();
+            
+            // 关闭模态框
+            this.modalManager.hideModal('importExportModal');
+            
+            if (success) {
+                this.modalManager.showToast('数据导入成功', 'success');
+                // 刷新界面
+                this.uiRenderer.renderCharacterList();
+                this.uiRenderer.renderRuleList();
+                this.uiRenderer.renderDataItemList();
+                this.uiRenderer.updateStatusInfo();
+                this.uiRenderer.updateCharacterSelects();
+                this.uiRenderer.updateStatusBar();
+                this.uiRenderer.updateCostChart();
+                // 渲染导入信息
+                this.uiRenderer.renderImportInfo();
+            } else {
+                this.modalManager.showToast('数据导入失败，数据格式不正确', 'error');
+            }
+        } catch (error) {
+            // 隐藏加载指示器
+            this.modalManager.hideLoadingIndicator();
+            
+            // 关闭模态框
+            this.modalManager.hideModal('importExportModal');
+            
+            console.error('从识别码导入数据失败:', error);
+            this.modalManager.showToast('从识别码导入数据失败，请检查识别码是否正确或网络连接', 'error');
+        }
+    }
+
+    showImportDataModal() {
+        // 显示导入选项模态框
+        this.showImportExportModal('import');
     }
 
     // 处理导入数据

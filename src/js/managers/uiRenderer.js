@@ -824,6 +824,7 @@ class UIRenderer {
         this.renderDataItemList();
         this.updateStatusInfo();
         this.updateCharacterSelects();
+        this.renderImportInfo(); // 添加导入信息渲染
         
         // 如果时间轴模态框当前显示，更新时间轴视图
         const timelineModal = document.getElementById('timelineModal');
@@ -1192,6 +1193,71 @@ class UIRenderer {
             // 如果时间轴模态框显示，更新费用变化曲线
             const items = this.dataManager.getDataItems();
             this.initCostChart(items, window.costChartType || 'line');
+        }
+    }
+    
+    /**
+     * 渲染导入信息
+     */
+    renderImportInfo() {
+        // 获取导出信息
+        const exportInfo = this.dataManager.exportInfo;
+        
+        // 获取DOM元素
+        const positionsInfoEl = document.getElementById('positionsInfo');
+        const videoAxisBtnContainer = document.getElementById('videoAxisBtnContainer');
+        
+        if (!positionsInfoEl || !videoAxisBtnContainer) return;
+        
+        let infoHTML = '';
+        
+        // 检查是否有角色站位信息需要显示
+        const hasPositions = exportInfo.positions.some(pos => pos);
+        
+        // 检查是否有初始技能信息需要显示
+        const hasInitialSkills = exportInfo.initialSkills.some(skill => skill);
+        
+        // 渲染角色站位信息（仅显示名字，取消编号）
+        if (hasPositions) {
+            let positionsHTML = exportInfo.positions
+                .filter(pos => pos) // 只保留有值的站位
+                .map(pos => `<span class="font-medium">${pos}</span>`)
+                .join(' ');
+            
+            infoHTML += `<div class="mb-1 ml-4"><span class="text-sm text-blue-700 bg-blue-50 px-2 py-1 rounded-md">站位: ${positionsHTML}</span></div>`;
+        }
+        
+        // 渲染初始技能信息（仅显示名字，取消编号）
+        if (hasInitialSkills) {
+            let initialSkillsHTML = exportInfo.initialSkills
+                .filter(skill => skill) // 只保留有值的技能
+                .map(skill => `<span class="font-medium text-red-600">${skill}</span>`)
+                .join(' ');
+            
+            infoHTML += `<div class="ml-4"><span class="text-sm text-red-700 bg-red-50 px-2 py-1 rounded-md">初始技能: ${initialSkillsHTML}</span></div>`;
+        }
+        
+        // 更新信息显示
+        if (infoHTML) {
+            positionsInfoEl.innerHTML = infoHTML;
+            positionsInfoEl.style.display = 'block';
+        } else {
+            // 没有信息需要显示，隐藏元素
+            positionsInfoEl.innerHTML = '';
+            positionsInfoEl.style.display = 'none';
+        }
+        
+        // 渲染视频轴按钮
+        if (exportInfo.videoAxisLink) {
+            videoAxisBtnContainer.innerHTML = `
+                <a href="${exportInfo.videoAxisLink}" target="_blank" rel="noopener noreferrer" class="btn btn-primary flex items-center gap-1 px-3 py-1 rounded hover:bg-opacity-80 transition-colors duration-200">
+                    <i class="fas fa-play-circle"></i>
+                    <span>视频轴</span>
+                </a>
+            `;
+        } else {
+            // 没有视频轴链接，清空容器
+            videoAxisBtnContainer.innerHTML = '';
         }
     }
     

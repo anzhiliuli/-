@@ -123,6 +123,72 @@ const AppUtils = {
         }
     },
 
+    // API集成
+    api: {
+        // jsonbin.io配置
+        jsonbin: {
+            baseUrl: 'https://api.jsonbin.io/v3',
+            // 使用用户提供的X-MASTER-KEY
+            apiKey: '$2a$10$BfUJi/KfceOKTukyQz7cIe4KlbXEaqR8ZJp4UPbCRAwq8sIXSGaNW',
+            binId: null
+        },
+        
+        // 通用请求方法
+        request: async (url, options = {}) => {
+            try {
+                const response = await fetch(url, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Master-Key': AppUtils.api.jsonbin.apiKey,
+                        ...options.headers
+                    },
+                    ...options
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                return await response.json();
+            } catch (error) {
+                console.error('API请求错误:', error);
+                throw error;
+            }
+        },
+        
+        // 生成识别码（将数据存储到jsonbin.io）
+        generateShareId: async (data) => {
+            try {
+                const url = `${AppUtils.api.jsonbin.baseUrl}/b`;
+                const response = await AppUtils.api.request(url, {
+                    method: 'POST',
+                    body: JSON.stringify(data)
+                });
+                
+                // 返回生成的bin ID作为识别码
+                return response.metadata.id;
+            } catch (error) {
+                console.error('生成识别码失败:', error);
+                throw error;
+            }
+        },
+        
+        // 从识别码获取数据
+        getShareData: async (shareId) => {
+            try {
+                const url = `${AppUtils.api.jsonbin.baseUrl}/b/${shareId}/latest`;
+                const response = await AppUtils.api.request(url, {
+                    method: 'GET'
+                });
+                
+                return response.record;
+            } catch (error) {
+                console.error('获取共享数据失败:', error);
+                throw error;
+            }
+        }
+    },
+
     // DOM操作辅助函数
     dom: {
         // 创建DOM元素

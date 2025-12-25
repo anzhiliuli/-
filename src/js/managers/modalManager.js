@@ -10,9 +10,11 @@ class ModalManager {
     initEventListeners() {
         // 监听所有模态框的关闭按钮
         document.addEventListener('click', (e) => {
-            if (e.target.classList.contains('close-modal-btn') || e.target.classList.contains('close-button')) {
+            // 检查点击目标是否是关闭按钮或其内部元素
+            const closeBtn = e.target.closest('.close-modal-btn') || e.target.closest('.close-button');
+            if (closeBtn) {
                 // 点击关闭按钮
-                const modal = e.target.closest('.modal-backdrop');
+                const modal = closeBtn.closest('.modal-backdrop');
                 if (modal) {
                     this.hideModal(modal.id);
                 }
