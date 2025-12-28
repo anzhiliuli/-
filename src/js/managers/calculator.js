@@ -481,11 +481,17 @@ class Calculator {
                 const baseCost = character.skillCost;
                 
                 // 跟踪学生的技能使用次数
+                // 排除初始化行，初始化行不计入技能使用次数
                 if (!useCounts[item.characterId]) {
                     useCounts[item.characterId] = 0;
                 }
-                useCounts[item.characterId]++;
-                const useCount = useCounts[item.characterId];
+                
+                // 初始化行不计入技能使用次数
+                let useCount = useCounts[item.characterId];
+                if (item.action !== '初始化') {
+                    useCounts[item.characterId]++;
+                    useCount = useCounts[item.characterId];
+                }
                 
                 // 传入预筛选的规则，避免在方法内部重复筛选，并传递使用次数
                 const finalCost = this.applyRuleCostChanges(item.characterId, baseCost, item.id, costReductionRules, costChangeRules, useCount);
